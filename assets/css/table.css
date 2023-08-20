@@ -1,0 +1,8 @@
+.table-space {
+    width: 100%; /* To stretch across the container */
+    display: block;
+    margin: 0;
+    padding: 0;
+    height: 20px; /* Adjust the height as needed */
+  }
+  
