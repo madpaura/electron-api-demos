@@ -7,7 +7,7 @@ const {
 } = require('electron')
 
 const menu = new Menu()
-menu.append(new MenuItem({ label: 'Hello' }))
+menu.append(new MenuItem({ label: 'Hello', click: () => console.log('Hello clicked') }))
 menu.append(new MenuItem({ type: 'separator' }))
 menu.append(new MenuItem({ label: 'Electron', type: 'checkbox', checked: true }))
 

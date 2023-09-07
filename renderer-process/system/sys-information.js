@@ -10,6 +10,11 @@ function createTableSpace(height) {
     return spaceDiv;
 }
 
+const refreshButton = document.getElementById('refresh-button');
+refreshButton.addEventListener('click', () => {
+    console.log('refresh')
+});
+
 function createTableWithHeader(tableContainer, tableData) {
     const table = document.createElement('table');
     const thead = document.createElement('thead');
@@ -95,7 +100,6 @@ function dockerInfo() {
                 headers: ['Repository', 'Tag'],
                 rows: imagesData
             };
-
             createTableWithHeader(tableContainer, tableData);
         } else {
             console.error('Error getting Docker images:', error);

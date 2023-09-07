@@ -9,33 +9,33 @@
             <use xlink:href="assets/img/icons.svg#icon-system"></use>
           </svg>
           System Information
+          <button id="refresh-button" class="btn btn-link refresh-button">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
         </h1>
-        <h3>Information about the System components,as well as Versions of Docker and KVM.</h3>
+        <h3>Information about the System components, as well as Versions of Docker and KVM.</h3>
       </div>
     </header>
 
     <div class="demo">
       <div class="demo-wrapper">
         <div class="info">
+          <h3>System Information</h3>
           <div class="info-table" id="system-info-table"></div>
         </div>
         <div class="table-space"></div>
         <div class="info">
+          <h3>Docker Information</h3>
           <div class="info-table" id="docker-info-table"></div>
         </div>
         <div class="table-space"></div>
         <div class="info">
+          <h3>Guest OS Information</h3>
           <div class="info-table" id="os-info-table"></div>
         </div>
       </div>
     </div>
-    <div class="demo-controls" id="sys_export">
-      <button class="demo-button" style="margin-left:85%;font-size: medium;" type="button">Save</button>
-    </div>
-
-    <script type="text/javascript">
-      require('./renderer-process/system/sys-information')
-    </script>
-
+    <script type="text/javascript"> require('./renderer-process/system/sys-information')</script>
+    <!-- <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script> -->
   </section>
 </template>

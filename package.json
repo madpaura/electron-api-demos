@@ -47,6 +47,7 @@
     "standard": "^8.2.0"
   },
   "dependencies": {
+    "bootstrap": "^5.3.1",
     "child-process": "^1.0.2",
     "electron": "^4.0.1",
     "electron-log": "^2.2.14",

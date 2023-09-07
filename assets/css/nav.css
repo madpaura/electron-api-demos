@@ -8,7 +8,7 @@
   border-right: 1px solid var(--color-border);
   background-color: var(--color-bg);
   visibility: hidden;
-  opacity: 0;
+  opacity: 1;
 }
 .nav.is-shown {
   visibility: visible;;
