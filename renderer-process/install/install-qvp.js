@@ -92,6 +92,9 @@ fetch(app.getAppPath() + '/qvp-config.json')
   .then((json) => {
     console.log(json)
 
+    const wikiLink = document.getElementById('install-wiki-link');
+    wikiLink.href = json.QVP.common.wiki   
+
     // Iterate through the list of servers and download files
     json.QVP.install.servers.forEach((server) => {
       if (!downloadSuccessful) {
@@ -110,4 +113,8 @@ fetch(app.getAppPath() + '/qvp-config.json')
       ipcRenderer.send('run-script', selectedValues);
     });
 
+  })
+
+  ipcRenderer.on('install-complete', (event, arg) => {
+    console.log("Installation complete", arg)
   })
