@@ -1,7 +1,9 @@
 const os = require('os');
 const fs = require('fs');
-const exec = require('child_process').exec;
 const prompt = require('electron-prompt');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+
 
 function createTableSpace(height) {
     const spaceDiv = document.createElement('div');
@@ -46,7 +48,7 @@ function createTableWithHeader(tableContainer, tableData) {
 }
 
 
-function systemInfo() {
+async function systemInfo() {
     const tableContainer = document.getElementById('system-info-table')
     const homeDir = os.homedir();
     const cpuModel = os.cpus()[0].model;
@@ -54,24 +56,22 @@ function systemInfo() {
     const ramGB = (os.totalmem() / (1024 * 1024 * 1024)).toFixed(2);
 
     dockerVersion = "Docker not found"
-    exec('docker --version', (error, stdout, stderr) => {
-        if (!error) {
-            dockerVersion = stdout.trim();
-            console.log(dockerVersion)
-        } else {
-            console.error('Error getting Docker version:', error);
-        }
-    })
+    try {
+        const { stdout, stderr } = await exec('docker --version')
+        dockerVersion = stdout.trim();
+    } catch (error) {
+        console.error('Error getting Docker version:', error);
+    }
 
-    kvmVersion = "KVM not enabled"
-    exec('kvm --version', (error, stdout, stderr) => {
-        if (!error) {
-            kvmVersion = stdout.trim();
-        } else {
-            console.error('Error getting KVM version:', error);
-        }
-    })
+    kvmVersion = "CPU Doesn't support KVM or WHPX"
+    try {
+        const { stdout, stderr } = await exec('cat /proc/cpuinfo | egrep "vmx|svm"');
+        kvmVersion = "CPU supports Virtualization"
+    } catch (error) {
+        console.error(error);
+    }
 
+    console.log(kvmVersion)
     const contents = {
         headers: ["Components", "Information"],
         rows: [
@@ -108,31 +108,31 @@ function dockerInfo() {
 }
 
 function listFilesInDirectory(directoryPath) {
-  return new Promise((resolve, reject) => {
-    fs.readdir(directoryPath, (err, files) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(files);
-      }
+    return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, (err, files) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(files);
+            }
+        });
     });
-  });
 }
 
 async function osInfo(directoryPath) {
-  try {
-    const files = await listFilesInDirectory(directoryPath);
+    try {
+        const files = await listFilesInDirectory(directoryPath);
 
-    const tableData = {
-      headers: ['OS Image'],
-      rows: files.map(file => [file]),
-    };
+        const tableData = {
+            headers: ['OS Image'],
+            rows: files.map(file => [file]),
+        };
 
-    const tableContainer = document.getElementById('os-info-table');
-    createTableWithHeader(tableContainer, tableData);
-  } catch (error) {
-    console.error('Error reading directory:', error);
-  }
+        const tableContainer = document.getElementById('os-info-table');
+        createTableWithHeader(tableContainer, tableData);
+    } catch (error) {
+        console.error('Error reading directory:', error);
+    }
 }
 
 // Example usage

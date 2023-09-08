@@ -18,6 +18,7 @@ function handleSectionTrigger (event) {
 
   // Display the current section
   const sectionId = `${event.target.dataset.section}-section`
+  console.log(sectionId)
   document.getElementById(sectionId).classList.add('is-shown')
 
   // Save currently active button in localStorage

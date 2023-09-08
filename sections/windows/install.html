@@ -1,0 +1,47 @@
+<template class="task-template">
+  <section id="windows-section" class="section js-section u-category-windows">
+    <header class="section-header">
+      <div class="section-wrapper">
+        <h1>
+          <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-windows"></use></svg>
+          QVP Install
+        </h1>
+        <h3>Installs necesary tool chain required for QVP usage.</h3> 
+        <p>Check here <a href="http://electron.atom.io/docs/api/browser-window">for system requirements<span class="u-visible-to-screen-reader">(opens in new window)</span></a></p>
+      </div>
+    </header>
+
+    <div class="demo">
+      <div class="demo-wrapper">
+        <button id="new-window-demo-toggle" class="js-container-target demo-toggle-button">Create a new window
+          <div class="demo-meta u-avoid-clicks">Supports: Win, macOS, Linux <span class="demo-meta-divider">|</span> Process: Main</div>
+        </button>
+        <div class="demo-box">
+          <div class="demo-controls">
+            <button class="demo-button" id="new-window">View Demo</button>
+          </div>
+          <p>The <code>BrowserWindow</code> module gives you the ability to create new windows in your app. This main process module can be used from the renderer process with the <code>remote</code> module, as is shown in this demo.</p>
+
+          <p>There are a lot of options when creating a new window. A few are in this demo, but visit the <a href="http://electron.atom.io/docs/api/browser-window">documentation<span class="u-visible-to-screen-reader">(opens in new window)</span></a> for the full list.</p>
+          <h5>Renderer Process</h5>
+          <pre><code data-path="renderer-process/windows/create-window.js"></code></pre>
+
+          <div class="demo-protip">
+            <h2>ProTip</h2>
+            <strong>Use an invisible browser window to run background tasks.</strong>
+            <p>You can set a new browser window to not be shown (be invisible) in order to use that additional renderer process as a kind of new thread in which to run JavaScript in the background of your app. You do this by setting the <code>show</code> property to <code>false</code> when defining the new window.</p>
+            <pre>
+<code class="language-js">var win = new BrowserWindow({
+  width: 400, height: 225, show: false
+})</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      require('./renderer-process/windows/create-window')
+    </script>
+
+  </section>
+</template>
