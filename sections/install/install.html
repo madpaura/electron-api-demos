@@ -1,0 +1,24 @@
+<template class="task-template">
+  <section id="windows-section" class="section js-section u-category-windows">
+    <header class="section-header">
+      <div class="section-wrapper">
+        <h1>
+          <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-windows"></use></svg>
+          QVP Install
+        </h1>
+        <h3>Installs necesary tool chain required for QVP usage.</h3> 
+        <p>Check here <a href="http://electron.atom.io/docs/api/browser-window">for system requirements<span class="u-visible-to-screen-reader">(opens in new window)</span></a></p>
+      </div>
+    </header>
+
+    <div class="demo">
+      <button class="demo-button" id="install">View Demo</button>
+      <div id="install-items"></div>
+    </div>
+
+    <script type="text/javascript">
+      require('./renderer-process/install/setup-pkg')
+    </script>
+
+  </section>
+</template>
