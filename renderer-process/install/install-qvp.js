@@ -27,6 +27,11 @@ function downloadFile(server) {
   const request = protocol.get(server.link, (response) => {
     if (response.statusCode === 200) {
       const fileStream = fs.createWriteStream(outputFile);
+      fs.chmod(outputFile, 0o755, (err) => {
+        if (err) {
+          console.error('Error setting execute permission:', err);
+        }
+      });
       response.pipe(fileStream);
 
       fileStream.on('finish', () => {
@@ -43,6 +48,7 @@ function downloadFile(server) {
   });
 
   request.end();
+  return outputFile
 }
 
 // Function to get selected checkbox values
@@ -54,8 +60,6 @@ function getSelectedValues() {
 
 function populateOptions(data) {
   const checkboxesContainer = document.getElementById('install-items');
-
-  console.log(data)
 
   data.forEach(tool => {
     const div = document.createElement('div');
@@ -93,12 +97,12 @@ fetch(app.getAppPath() + '/qvp-config.json')
     console.log(json)
 
     const wikiLink = document.getElementById('install-wiki-link');
-    wikiLink.href = json.QVP.common.wiki   
+    wikiLink.href = json.QVP.common.wiki
 
     // Iterate through the list of servers and download files
     json.QVP.install.servers.forEach((server) => {
       if (!downloadSuccessful) {
-        downloadFile(server);
+        script = downloadFile(server);
       }
     });
 
@@ -108,13 +112,22 @@ fetch(app.getAppPath() + '/qvp-config.json')
     const installButton = document.getElementById('install');
     // Event listener for the "Run Bash Script" button
     installButton.addEventListener('click', () => {
+      installButton.disabled = true;
+      installButton.classList.add('disabled-button')
+      const outputElement = document.getElementById('script-output-text');
+      outputElement.innerHTML = "";
       const selectedValues = getSelectedValues();
-      console.log(selectedValues)
-      ipcRenderer.send('run-script', selectedValues);
+      ipcRenderer.send('execute-script', [script, ...selectedValues]);
     });
-
   })
 
-  ipcRenderer.on('install-complete', (event, arg) => {
-    console.log("Installation complete", arg)
-  })
+ipcRenderer.on('script-output', (event, data) => {
+  const outputElement = document.getElementById('script-output-text');
+  outputElement.innerHTML += `${data}`;
+  outputElement.scrollTop = outputElement.scrollHeight;
+});
+
+ipcRenderer.on('script-exit', (event, data) => {
+  document.getElementById('install').disabled = false;
+  document.getElementById('install').classList.remove('disabled-button')
+});
