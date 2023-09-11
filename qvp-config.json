@@ -101,7 +101,66 @@
             ]
         },
 
-        "workspace" : 
+        "workspace": {
+            "fw": [
+                {
+                    "type": "input",
+                    "label": "Name",
+                    "id": "name",
+                    "value": "vishwa"
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Agree to Terms",
+                    "id": "terms",
+                    "value": true
+                },
+                {
+                    "type": "list",
+                    "label": "Fruit",
+                    "id": "fruit",
+                    "options": [
+                        "Apple",
+                        "Banana",
+                        "Orange"
+                    ],
+                    "value": "Banana"
+                },
+                {
+                    "type": "boolean",
+                    "label": "Enabled",
+                    "id": "enabled",
+                    "value": true
+                }
+            ],
+            "guestos": [
+                {
+                    "type": "input",
+                    "label": "Name",
+                    "id": "name",
+                    "value": "vishwa"
+                },
+                {
+                    "type": "list",
+                    "label": "Fruit",
+                    "id": "fruit",
+                    "options": [
+                        "Apple",
+                        "Banana",
+                        "Orange"
+                    ],
+                    "value": "Banana"
+                },
+                {
+                    "type": "boolean",
+                    "label": "Enabled",
+                    "id": "enabled",
+                    "value": true
+                }
+            ]
+        },
+
+        "workspace1" : 
         [
             {
                 "name" : "firmware_config",
