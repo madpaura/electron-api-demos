@@ -1,5 +1,5 @@
-const {desktopCapturer, screen, shell} = require('electron')
-const {ipcRenderer} = require('electron')
+const { desktopCapturer, screen, shell } = require('electron')
+const { ipcRenderer } = require('electron')
 
 const fs = require('fs')
 const json = require('highlight.js/lib/languages/json')
@@ -51,7 +51,7 @@ function createUIElement(item) {
       inputElement.id = item.id;
       inputElement.className = 'form-control';
       inputElement.value = item.value
-      inputElement.addEventListener('input', updateJSONData)
+      inputElement.addEventListener('input', handleChangeEvent)
       inputWrapper.appendChild(inputElement);
       break;
 
@@ -61,7 +61,7 @@ function createUIElement(item) {
       inputElement.id = item.id;
       inputElement.className = 'form-check-input';
       inputElement.checked = item.value
-      inputElement.addEventListener('change', updateJSONData)
+      inputElement.addEventListener('change', handleChangeEvent)
       inputWrapper.appendChild(inputElement);
       break;
 
@@ -75,7 +75,7 @@ function createUIElement(item) {
         inputElement.appendChild(optionElement);
       });
       inputElement.value = item.value
-      inputElement.addEventListener('change', updateJSONData)
+      inputElement.addEventListener('change', handleChangeEvent)
       inputWrapper.appendChild(inputElement);
       break;
 
@@ -85,8 +85,36 @@ function createUIElement(item) {
       inputElement.id = item.id;
       inputElement.className = 'form-check-input';
       inputElement.checked = item.value
-      inputElement.addEventListener('change', updateJSONData)
+      inputElement.addEventListener('change', handleChangeEvent)
       inputWrapper.appendChild(inputElement);
+      break;
+
+    case 'file':
+      inputElement = document.createElement('input');
+      inputElement.type = 'file';
+      inputElement.id = item.id;
+      inputElement.className = 'form-control-file';
+      inputElement.style.display = 'none'; // Hide the file input
+
+      // Create a div element to display the selected file name
+      const fileDiv = document.createElement('div');
+      fileDiv.textContent = item.value;
+      fileDiv.className = 'file-label';
+      fileDiv.addEventListener('click', () => {
+        inputElement.click();
+      });
+
+      // Listen for file selection and update the label
+      inputElement.addEventListener('change', () => {
+        if (inputElement.files.length > 0) {
+          fileDiv.textContent = inputElement.files[0].name;
+          updateJSONData(inputElement.id, inputElement.files[0].name);
+        }
+      });
+
+      // Append both the file input and label to the container
+      inputWrapper.appendChild(inputElement);
+      inputWrapper.appendChild(fileDiv);
       break;
 
     default:
@@ -99,34 +127,23 @@ function createUIElement(item) {
   return wrapper;
 }
 
-function updateJSONData(event) {
-
-  const target = event.target;
-  const value = target.type === 'checkbox' ? target.checked : target.value;
-  const name = target.name;
-  
-  console.log(target.id, value)
-
-  jsonData['fw'].forEach((item) => {
-    if (item.id === target.id) {
-      item.value = value;
-      return
-    }
-  });
-
-  console.log(jsonData['fw'])
-
-  // Save updated JSON data to file
-  // fs.writeFile(jsonDataPath, JSON.stringify(jsonData), 'utf8', (err) => {
-  //   if (err) {
-  //     console.error('Error saving JSON data:', err);
-  //   } else {
-  //     console.log('JSON data saved successfully!');
-  //   }
-  // });
+function updateJSONData(id, value) {
+  const tabs = Object.keys(jsonData);
+  tabs.forEach(key => {
+    jsonData[key].forEach((item) => {
+      if (item.id === id) {
+        item.value = value;
+        return
+      }
+    });
+  })
 }
 
-
+function handleChangeEvent(event) {
+  const target = event.target;
+  const value = target.type === 'checkbox' ? target.checked : target.value;
+  updateJSONData(target.id, value);
+}
 
 // Handle navigation events from the main process
 ipcRenderer.on('navigate-tab', (event, tab) => {
@@ -136,23 +153,21 @@ ipcRenderer.on('navigate-tab', (event, tab) => {
 fetch(app.getAppPath() + '/qvp-config.json')
   .then((response) => response.json())
   .then((json) => {
-    
+
     jsonData = json.QVP.workspace;
     const settings = document.getElementById('settings-section');
     const tabContainer = document.createElement('div');
     tabContainer.className = 'tab-container';
-  
+
     // Using Object.keys()
     const tabs = Object.keys(jsonData);
     tabs.forEach(key => {
-        // const items = json.QVP.workspace[key];
-        console.log(`Top-level key: ${key}`);
-        const tabButton = document.createElement('button');
-        tabButton.textContent = key;
-        tabButton.addEventListener('click', () => {
-          ipcRenderer.send('navigate-tab', key);
-        });
-        tabContainer.appendChild(tabButton);
+      const tabButton = document.createElement('button');
+      tabButton.textContent = key;
+      tabButton.addEventListener('click', () => {
+        ipcRenderer.send('navigate-tab', key);
+      });
+      tabContainer.appendChild(tabButton);
     });
     const tabView = document.createElement('div');
     tabView.className = 'tab-view'
@@ -161,4 +176,4 @@ fetch(app.getAppPath() + '/qvp-config.json')
     settings.appendChild(tabView)
 
     renderTab(tabs[0]);
-})
+  })

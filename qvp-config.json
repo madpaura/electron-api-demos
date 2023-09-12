@@ -129,7 +129,7 @@
                 {
                     "type": "boolean",
                     "label": "Enabled",
-                    "id": "enabled",
+                    "id": "enabled1",
                     "value": true
                 }
             ],
@@ -137,13 +137,13 @@
                 {
                     "type": "input",
                     "label": "Name",
-                    "id": "name",
+                    "id": "name1",
                     "value": "vishwa"
                 },
                 {
                     "type": "list",
                     "label": "Fruit",
-                    "id": "fruit",
+                    "id": "fruit1",
                     "options": [
                         "Apple",
                         "Banana",
@@ -154,8 +154,14 @@
                 {
                     "type": "boolean",
                     "label": "Enabled",
-                    "id": "enabled",
+                    "id": "enabled2",
                     "value": true
+                },
+                {
+                    "type": "file",
+                    "label": "AXF File",
+                    "id": "mgcore",
+                    "value": "/opt/os/fw/mgmt.axf"
                 }
             ]
         },
