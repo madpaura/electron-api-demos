@@ -64,13 +64,10 @@ function populateOptions(data) {
   data.forEach(tool => {
 
     const segment = document.createElement('div');
-    segment.classList.add('ui')
-    segment.classList.add('basic')
-    segment.classList.add('segment')
+    segment.classList.add('ui', 'basic', 'segment');
 
     const checkbox = document.createElement('div');
-    checkbox.classList.add('ui')
-    checkbox.classList.add('checkbox')
+    checkbox.classList.add('ui', 'checkbox');
 
     const input = document.createElement('input');
     input.type = 'checkbox';

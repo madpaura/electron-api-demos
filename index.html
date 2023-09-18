@@ -97,8 +97,9 @@
 
   <main class="content js-content"></main>
 
-  <script src="jquery.min.js"></script>
-  <!-- <script src="semantic.min.js"></script> -->
+  <script>window.$ = window.jQuery = require('jquery');</script>
+  <script src="./assets/semantic.min.js"></script>
+
   <script>
     require('./assets/imports')
     require('./assets/ex-links')

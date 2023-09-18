@@ -4,6 +4,8 @@ const prompt = require('electron-prompt');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
+// Example usage
+const directoryPath = '/opt/os';
 
 function createTableSpace(height) {
     const spaceDiv = document.createElement('div');
@@ -14,11 +16,14 @@ function createTableSpace(height) {
 
 const refreshButton = document.getElementById('refresh-button');
 refreshButton.addEventListener('click', () => {
-    console.log('refresh')
+    loadInfo()
 });
 
 function createTableWithHeader(tableContainer, tableData) {
+    tableContainer.innerHTML = ''
     const table = document.createElement('table');
+    table.classList.add('ui', 'red', 'table');
+
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
 
@@ -36,6 +41,14 @@ function createTableWithHeader(tableContainer, tableData) {
         const dataRow = document.createElement('tr');
         for (const cellData of rowData) {
             const dataCell = document.createElement('td');
+            const regex = /Error/;
+
+            if (regex.test(cellData)) {
+                dataCell.classList.add('error');
+                const icon = document.createElement('i')
+                icon.classList.add('attention', 'icon')
+                dataCell.append(icon)
+            }
             dataCell.textContent = cellData;
             dataRow.appendChild(dataCell);
         }
@@ -47,7 +60,6 @@ function createTableWithHeader(tableContainer, tableData) {
     tableContainer.appendChild(table);
 }
 
-
 async function systemInfo() {
     const tableContainer = document.getElementById('system-info-table')
     const homeDir = os.homedir();
@@ -55,15 +67,15 @@ async function systemInfo() {
     const numProcessors = os.cpus().length;
     const ramGB = (os.totalmem() / (1024 * 1024 * 1024)).toFixed(2);
 
-    dockerVersion = "Docker not found"
+    dockerVersion = "Error: Docker not found"
     try {
         const { stdout, stderr } = await exec('docker --version')
         dockerVersion = stdout.trim();
     } catch (error) {
-        console.error('Error getting Docker version:', error);
+        // console.error('Error getting Docker version:', error);
     }
 
-    kvmVersion = "CPU Doesn't support KVM or WHPX"
+    kvmVersion = "Error: CPU Doesn't support KVM or WHPX"
     try {
         const { stdout, stderr } = await exec('cat /proc/cpuinfo | egrep "vmx|svm"');
         kvmVersion = "CPU supports Virtualization"
@@ -134,11 +146,15 @@ async function osInfo(directoryPath) {
     }
 }
 
-// Example usage
-const directoryPath = '/opt/os';
-systemInfo()
-dockerInfo()
-osInfo(directoryPath);
+
+
+function loadInfo() {
+    systemInfo()
+    dockerInfo()
+    osInfo(directoryPath);
+}
+
+loadInfo()
 
 // const sys_export_btn = document.getElementById('sys_export');
 // sys_export_btn.addEventListener("click", () => {
