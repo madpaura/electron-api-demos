@@ -68,10 +68,9 @@ async function systemInfo() {
         const { stdout, stderr } = await exec('cat /proc/cpuinfo | egrep "vmx|svm"');
         kvmVersion = "CPU supports Virtualization"
     } catch (error) {
-        console.error(error);
+        // console.error(error);
     }
 
-    console.log(kvmVersion)
     const contents = {
         headers: ["Components", "Information"],
         rows: [

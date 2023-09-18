@@ -56,6 +56,8 @@
     "electron-shortcut-normalizer": "^1.0.0",
     "glob": "^7.1.0",
     "highlight.js": "^9.3.0",
+    "jquery": "^3.7.1",
+    "semantic-ui-css": "^2.5.0",
     "update-electron-app": "^1.1.1"
   },
   "standard": {

@@ -5,7 +5,7 @@ for arg in "$@"; do
   echo "$arg"
 done
 # Define the number of times to loop
-count=20  # Change this to the desired count
+count=2  # Change this to the desired count
 
 # Loop for the specified count
 for ((i=1; i<=count; i++)); do

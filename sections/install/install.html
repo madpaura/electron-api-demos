@@ -2,25 +2,32 @@
   <style>
     #output {
       margin-top: 10px;
-      background-color: black;
+      background-color: rgb(44, 43, 43);
       color: white;
       font-family: monospace;
       padding: 10px;
       overflow-y: scroll;
-      max-height: 40px; /* Max height for the div */
+      max-height: 40px;
+      /* Max height for the div */
     }
 
     #output pre {
       margin: 0;
       white-space: pre-wrap;
-      line-height: 1.4; /* Adjust line height for better readability */
+      line-height: 1.4;
+      /* Adjust line height for better readability */
     }
+
     .disabled-button {
-    background-color: #ccc; /* Use your desired gray color */
-    color: #777; /* Text color for disabled button */
-    cursor: not-allowed; /* Change cursor to indicate it's disabled */
-  }
-  </style>  
+      background-color: #ccc;
+      /* Use your desired gray color */
+      color: #777;
+      /* Text color for disabled button */
+      cursor: not-allowed;
+      /* Change cursor to indicate it's disabled */
+    }
+  </style>
+
   <section id="windows-section" class="section js-section u-category-windows">
     <header class="section-header">
       <div class="section-wrapper">
@@ -29,24 +36,30 @@
             <use xlink:href="assets/img/icons.svg#icon-windows"></use>
           </svg>
           QVP Install
+          <button class="ui right floated primary button" id="install">Install</button>
         </h1>
-        <h3>Installs necesary tool chain required for QVP usage.</h3>
-        <p>Check here <a id="install-wiki-link" href="">for system requirements<span
-              class="u-visible-to-screen-reader">(opens in new window)</span></a></p>
       </div>
     </header>
-
-    <div class="demo">
-      <button class="demo-button" id="install">Install</button>
-      <div id="install-items"></div>
-      <hr>
-      <div class="output" id="script-output">
-        <pre id="script-output-text"></pre>
-      </div>
+    <div class="ui green top attached progress" data-value="1" data-total="100" id="install-progress">
+      <div class="bar"></div>
+      <div class="progress"></div>
     </div>
+
+    <div class="ui horizontal basic segments">
+      <div class="ui vertical basic segments" id="install-items-left"></div>
+      <div class="ui vertical basic segments" id="install-items-right"></div>
+    </div>
+    </div>
+    <div class="output" id="script-output">
+      <pre id="script-output-text"></pre>
+    </div>
+
+    <script>window.$ = window.jQuery = require('jquery');</script>
+    <script src="./assets/semantic.min.js"></script>
     <script type="text/javascript">
       require('./renderer-process/install/install-qvp')
     </script>
 
   </section>
+
 </template>

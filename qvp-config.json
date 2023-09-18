@@ -12,7 +12,7 @@
                 { "ip": "10.229.240.11", "link": "http://10.229.240.11:8080/qvp/env/setup/qvp-install.sh" },
                 { "ip": "107.116.180.53", "link": "http://107.116.180.53:8080/qvp/env/setup/qvp-install.sh" },
                 { "ip": "107.110.39.183", "link": "http://107.110.39.183/qvp/setup/qvp-install.sh" },
-                { "ip": "172.19.201.222", "link": "http://172.19.201.222:8080/qvp/env/setup/qvp-install.sh" }
+                { "ip": "localhost", "link": "http://localhost:8080/qvp/env/setup/qvp-install.sh" }
             ],
     
             "tools": [
