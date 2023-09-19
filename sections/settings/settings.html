@@ -3,19 +3,29 @@
     <header class="section-header">
       <div class="section-wrapper">
         <h1>
-          <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-media"></use></svg>
+          <svg class="section-icon">
+            <use xlink:href="assets/img/icons.svg#icon-media"></use>
+          </svg>
           Edit QVP Configuration
+          <button class="ui right floated primary button" id="save-workspace"><i
+              class="large save icon"></i>Save</button>
         </h1>
       </div>
     </header>
-
-    <div class="demo">
-      <div id="settings-section"></div>
+    <div class="ui secondary pointing menu" id="tab-menu">
     </div>
+
+    <div class="ui basic segment">
+      <div class="ui form" id="tab-contents">
+        </div>
+      </div>
+    </div>
+
+    <script>window.$ = window.jQuery = require('jquery');</script>
+    <script src="./assets/semantic.min.js"></script>
 
     <script type="text/javascript">
       require('./renderer-process/settings/workspace-settings')
     </script>
-
   </section>
 </template>

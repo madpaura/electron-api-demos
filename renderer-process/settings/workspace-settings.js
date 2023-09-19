@@ -1,3 +1,4 @@
+const { table } = require('console')
 const { desktopCapturer, screen, shell } = require('electron')
 const { ipcRenderer } = require('electron')
 
@@ -11,121 +12,134 @@ let jsonData = [];
 
 // Helper function to render the current settings tab
 function renderTab(tab) {
-  const app = document.getElementById('tabcontent');
+  const app = document.getElementById('tab-contents');
   app.innerHTML = '';
-
-  const container = document.createElement('div');
-  container.className = 'settings-container';
-  const title = document.createElement('h2');
-  title.textContent = tab;
-  container.appendChild(title);
 
   jsonData[tab].forEach((item) => {
     const element = createUIElement(item);
-    container.appendChild(element);
+    app.appendChild(element);
   });
-
-  app.appendChild(container)
+  $('.edit.ui.checkbox').checkbox()
+  $('select.dropdown').dropdown();
 }
 
 function createUIElement(item) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'row mb-1';
 
-  const element = document.createElement('div');
-  element.className = 'setting-row';
+  const fields = document.createElement('div')
+  fields.classList.add('inline', 'fields')
 
-  const label = document.createElement('label');
-  label.textContent = item.label;
+  const field = document.createElement('div')
+  field.classList.add('ten', 'wide', 'field')
 
-  let inputElement;
-
-  const inputWrapper = document.createElement('div');
-  inputWrapper.className = 'input-group';
-  inputWrapper.appendChild(label);
+  let div, input, label;
 
   switch (item.type) {
     case 'input':
-      inputElement = document.createElement('input');
-      inputElement.type = 'text';
-      inputElement.id = item.id;
-      inputElement.className = 'form-control';
-      inputElement.value = item.value
-      inputElement.addEventListener('input', handleChangeEvent)
-      inputWrapper.appendChild(inputElement);
+      label = document.createElement('label');
+      label.textContent = item.label;
+    
+      div = document.createElement('div')
+      div.classList.add('ui', 'fluid', 'icon', 'input')
+
+      input = document.createElement('input');
+      input.type = 'text';
+      input.id = item.id;
+      input.value = item.value
+      input.placeholder = "Enter value for " + item.id + "..."
+
+      input.addEventListener('input', handleChangeEvent)
+      div.appendChild(input)
+      field.appendChild(label)
+      field.appendChild(div);
       break;
 
     case 'checkbox':
-      inputElement = document.createElement('input');
-      inputElement.type = 'checkbox';
-      inputElement.id = item.id;
-      inputElement.className = 'form-check-input';
-      inputElement.checked = item.value
-      inputElement.addEventListener('change', handleChangeEvent)
-      inputWrapper.appendChild(inputElement);
+    case 'boolean':
+      div = document.createElement('div')
+      div.classList.add('edit', 'ui', 'toggle', 'checkbox')
+
+      label = document.createElement('label');
+      label.textContent = item.label;
+
+      input = document.createElement('input');
+      input.type = 'checkbox';
+      input.id = item.id;
+      input.checked = item.value
+      input.addEventListener('change', handleChangeEvent)
+
+      div.appendChild(label)
+      div.appendChild(input);
+      field.appendChild(div)
       break;
 
     case 'list':
-      inputElement = document.createElement('select');
-      inputElement.id = item.id;
-      inputElement.className = 'form-select';
-      item.options.forEach((option) => {
-        const optionElement = document.createElement('option');
-        optionElement.textContent = option;
-        inputElement.appendChild(optionElement);
-      });
-      inputElement.value = item.value
-      inputElement.addEventListener('change', handleChangeEvent)
-      inputWrapper.appendChild(inputElement);
-      break;
+      div = document.createElement('select');
+      div.classList.add('ui', 'fluid', 'search', 'dropdown')
 
-    case 'boolean':
-      inputElement = document.createElement('input');
-      inputElement.type = 'checkbox';
-      inputElement.id = item.id;
-      inputElement.className = 'form-check-input';
-      inputElement.checked = item.value
-      inputElement.addEventListener('change', handleChangeEvent)
-      inputWrapper.appendChild(inputElement);
+      label = document.createElement('label');
+      label.textContent = item.label;
+
+      div.id = item.id;
+      item.options.forEach((option) => {
+        const opt = document.createElement('option');
+        opt.textContent = option;
+        opt.value = option;
+
+        div.appendChild(opt);
+      });
+
+      div.value = item.value
+      div.addEventListener('change', handleChangeEvent)
+      field.appendChild(label)
+      field.appendChild(div)
       break;
 
     case 'file':
-      inputElement = document.createElement('input');
-      inputElement.type = 'file';
-      inputElement.id = item.id;
-      inputElement.className = 'form-control-file';
-      inputElement.style.display = 'none'; // Hide the file input
+      label = document.createElement('label');
+      label.textContent = item.label;
 
-      // Create a div element to display the selected file name
-      const fileDiv = document.createElement('div');
-      fileDiv.textContent = item.value;
-      fileDiv.className = 'file-label';
-      fileDiv.addEventListener('click', () => {
-        inputElement.click();
+      div = document.createElement('input');
+      div.type = 'text';
+      div.placeholder = 'Choose FW binary : ' + item.label;
+      div.value = item.value
+
+      input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.axf, .elf';
+      input.id = item.id;
+      input.className = 'form-control-file';
+      input.style.display = 'none'; // Hide the file input
+
+      const button = document.createElement('button')
+      button.classList.add('ui', 'icon', 'button')
+      button.innerHTML = '<i class="folder open icon"></i>'
+      button.addEventListener('click', () => {
+          input.click();
       });
 
       // Listen for file selection and update the label
-      inputElement.addEventListener('change', () => {
-        if (inputElement.files.length > 0) {
-          fileDiv.textContent = inputElement.files[0].name;
-          updateJSONData(inputElement.id, inputElement.files[0].name);
+      input.addEventListener('change', () => {
+        console.log(input.files)
+        if (input.files.length > 0) {
+          div.value = input.files[0].path;
+          updateJSONData(input.id, input.files[0].path);
         }
       });
 
-      // Append both the file input and label to the container
-      inputWrapper.appendChild(inputElement);
-      inputWrapper.appendChild(fileDiv);
+      field.appendChild(label)
+      field.appendChild(div)
+      field.appendChild(button)
       break;
 
     default:
       break;
   }
 
-  element.appendChild(inputWrapper);
-  wrapper.appendChild(element);
+  fields.appendChild(field);
 
-  return wrapper;
+  return fields;
 }
+
 
 function updateJSONData(id, value) {
   const tabs = Object.keys(jsonData);
@@ -155,25 +169,41 @@ fetch(app.getAppPath() + '/qvp-config.json')
   .then((json) => {
 
     jsonData = json.QVP.workspace;
-    const settings = document.getElementById('settings-section');
-    const tabContainer = document.createElement('div');
-    tabContainer.className = 'tab-container';
-
+    const menu = document.getElementById('tab-menu');
+    
     // Using Object.keys()
     const tabs = Object.keys(jsonData);
+
     tabs.forEach(key => {
-      const tabButton = document.createElement('button');
-      tabButton.textContent = key;
-      tabButton.addEventListener('click', () => {
+      const item = document.createElement('a');
+      item.classList.add('item')
+      item.textContent = key;
+      item.id = key
+
+      item.addEventListener('click', () => {
+        // Get all menu items
+        const menuItems = document.querySelectorAll(".item");
+        menuItems.forEach((item) => {
+          item.classList.remove("active");
+        });
+        item.classList.add("active")
         ipcRenderer.send('navigate-tab', key);
       });
-      tabContainer.appendChild(tabButton);
-    });
-    const tabView = document.createElement('div');
-    tabView.className = 'tab-view'
-    tabView.id = 'tabcontent'
-    settings.appendChild(tabContainer);
-    settings.appendChild(tabView)
 
-    renderTab(tabs[0]);
-  })
+      menu.appendChild(item);
+    });
+
+    const search = document.createElement('div')
+    search.classList.add('right', 'menu')
+    search.innerHTML = '<div class="right menu"> \
+                        <div class="item"> \
+                        <div class="ui transparent icon input">\
+                        <input type="text" placeholder="Search..." id="searchinput">\
+                        <i class="search link icon"></i>\
+                        </div></div></div>'
+    menu.appendChild(search);
+
+    // first tab visible
+    const element = document.querySelector("#"+tabs[0]);
+    element.click();
+  });
