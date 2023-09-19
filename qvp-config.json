@@ -208,6 +208,37 @@
                     "id": "mgcore",
                     "value": "/opt/os/fw/mgmt.axf"
                 }
+            ],
+            "Debug": [
+                {
+                    "type": "input",
+                    "label": "Name",
+                    "id": "name1",
+                    "value": "vishwa"
+                },
+                {
+                    "type": "list",
+                    "label": "Fruit",
+                    "id": "fruit1",
+                    "options": [
+                        "Apple",
+                        "Banana",
+                        "Orange"
+                    ],
+                    "value": "Banana"
+                },
+                {
+                    "type": "boolean",
+                    "label": "Enabled",
+                    "id": "enabled2",
+                    "value": true
+                },
+                {
+                    "type": "file",
+                    "label": "AXF File",
+                    "id": "mgcore",
+                    "value": "/opt/os/fw/mgmt.axf"
+                }
             ]
         },
 
