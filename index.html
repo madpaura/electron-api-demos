@@ -16,13 +16,13 @@
 
   <link rel="import" href="sections/about.html">
   <link rel="import" href="sections/install/install.html">
-  <link rel="import" href="sections/menus/menus.html">
-  <link rel="import" href="sections/menus/shortcuts.html">
-  <link rel="import" href="sections/native-ui/ex-links-file-manager.html">
-  <link rel="import" href="sections/native-ui/notifications.html">
-  <link rel="import" href="sections/native-ui/dialogs.html">
-  <link rel="import" href="sections/native-ui/tray.html">
-  <link rel="import" href="sections/native-ui/drag.html">
+  <link rel="import" href="sections/rundebug/debugfw.html">
+  <link rel="import" href="sections/rundebug/launch.html">
+  <link rel="import" href="sections/plugins/coverage.html">
+  <link rel="import" href="sections/plugins/sfrcovrage.html">
+  <link rel="import" href="sections/plugins/execution.html">
+  <link rel="import" href="sections/plugins/heatmap.html">
+  <link rel="import" href="sections/plugins/inscount.html">
   <link rel="import" href="sections/communication/ipc.html">
   <link rel="import" href="sections/system/app-sys-information.html">
   <link rel="import" href="sections/settings/settings.html">
@@ -34,26 +34,26 @@
       <svg class="nav-header-icon"><use xlink:href="assets/img/icons.svg#icon-electron"></use></svg>
     </header>
 
-    <div class="nav-item u-category-windows">
+    <div class="nav-item u-category-menu">
       <h5 class="nav-category">
-        <svg class="nav-icon"><use xlink:href="assets/img/icons.svg#icon-windows"></use></svg>
-        Download
+        <i class="large play icon"></i>
+        Run & Debug
       </h5>
-      <button type="button" id="button-windows" data-section="windows" class="nav-button">Install <em>QVP</em></button>
+      <button type="button" id="button-menus" data-section="menus" class="nav-button">Run <em>QVP</em> </button>
+      <button type="button" id="button-shortcuts" data-section="shortcuts" class="nav-button">Debug <em>Firmware</em></button>
     </div>
 
-    <!-- <div class="nav-item u-category-menu">
+    <div class="nav-item u-category-media">
       <h5 class="nav-category">
-        <svg class="nav-icon"><use xlink:href="assets/img/icons.svg#icon-menu"></use></svg>
-        Menus
+        <i class="large certificate icon"></i>
+        Settings
       </h5>
-      <button type="button" id="button-menus" data-section="menus" class="nav-button">Customize <em>menus</em> </button>
-      <button type="button" id="button-shortcuts" data-section="shortcuts" class="nav-button">Register keyboard <em>shortcuts</em></button>
-    </div> -->
+      <button type="button" id="button-desktop-capturer" data-section="desktop-capturer" class="nav-button">Edit <em>Workspace</em></button>
+    </div>
 
     <div class="nav-item u-category-native-ui">
       <h5 class="nav-category">
-        <svg class="nav-icon"><use xlink:href="assets/img/icons.svg#icon-native-ui"></use></svg>
+        <i class="large magic icon"></i>
         Plugins</h5>
       <button type="button" id="button-ex-links-file-manager" data-section="ex-links-file-manager" class="nav-button">Code <em>Coverage</em></em></button>
       <button type="button" id="button-notifications" data-section="notifications" class="nav-button"> <em>SFR</em> Coverage</button>
@@ -78,14 +78,16 @@
       <button type="button" id="button-app-sys-information" data-section="app-sys-information" class="nav-button" ><em>System </em>information</button>
     </div>
 
-    <div class="nav-item u-category-media">
-      <h5 class="nav-category">
-        <svg class="nav-icon"><use xlink:href="assets/img/icons.svg#icon-media"></use></svg>
-        Settings
-      </h5>
-      <button type="button" id="button-desktop-capturer" data-section="desktop-capturer" class="nav-button">Edit <em>Workspace</em></button>
-    </div>
 
+
+    <div class="nav-item u-category-windows">
+      <h5 class="nav-category">
+        <i class="large download icon"></i>
+        Download
+      </h5>
+      <button type="button" id="button-windows" data-section="windows" class="nav-button">Install <em>QVP</em></button>
+    </div>
+    
     <footer class="nav-footer">
       <button type="button" id="button-about" data-modal="about" class="nav-footer-button">About</button>
       <a class="nav-footer-logo" href="https://github.com" aria-label="Homepage">
