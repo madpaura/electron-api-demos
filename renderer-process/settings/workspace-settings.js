@@ -294,14 +294,6 @@ ipcRenderer.on('config-file-changed', (event, path) => {
 
 });
 
-
-
-fetch(app.getAppPath() + '/qvp-config.json')
-  .then((response) => response.json())
-  .then((json) => {
-    jsonData = json.QVP.workspace;
-  });
-
 document.addEventListener("DOMContentLoaded", function () {
   const configPath = document.querySelector('#config_file_path');
   configPath.textContent = app.getAppPath() + '/qvp.conf'

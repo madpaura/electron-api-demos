@@ -48,6 +48,7 @@
   "dependencies": {
     "axios": "^1.5.0",
     "bootstrap": "^5.3.1",
+    "chartjs": "^0.3.24",
     "child-process": "^1.0.2",
     "electron": "^4.0.1",
     "electron-log": "^2.2.14",

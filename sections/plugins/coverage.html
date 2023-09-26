@@ -3,12 +3,19 @@
     <header class="section-header">
       <div class="section-wrapper">
         <h1>
-          <!-- <svg class="section-icon"><use xlink:href="assets/img/icons.svg#icon-native-ui"></use></svg> -->
           <i class="large code icon"></i>
           Code Coverage
-        </h1>
+          <div class="ui icon right floated buttons">
+            <button class="ui button" id="start-cov-button", title="Start Coverage"><i class="large play icon"></i></button>
+            <button class="ui button" id="stop-cov-button", title="Stop Coverage"><i class="stop icon"></i></button>
+            <button class="ui button" id="view-cov-button", title="View Report"><i class="large chart pie icon"></i></button>
+          </div>
       </div>
+      </h1>
     </header>
+
+    <div class="container-fluid coverage"></div>
+
     <script type="text/javascript">
       require('./renderer-process/plugins/coverage')
     </script>

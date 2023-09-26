@@ -6,8 +6,8 @@
         "install": {
             "servers": [
                 {
-                    "ip": "localhost1",
-                    "link": "http://localhost1/qvp/setup/qvp-install.sh"
+                    "ip": "localhost",
+                    "link": "http://localhost/qvp/setup/qvp-install.sh"
                 },
                 {
                     "ip": "localhost",
@@ -98,6 +98,14 @@
                     "value": "9.0.0"
                 }
             ]
+        },
+        "plugin" : {
+            "coverage" : {
+                "output": "/plugins/coverage",
+                "start" : "qvp.sh coverage start",
+                "stop" : "qvp.sh coverage stop",
+                "view" : "qvp.sh coverage view"
+            }
         }
     }
 }

@@ -59,7 +59,6 @@ function downloadFile(server) {
 // Function to get selected checkbox values
 function getSelectedValues() {
   const installDiv = document.getElementById('install-list');
-  console.log(installDiv)
   const checkboxes = installDiv.querySelectorAll('input[type="checkbox"]:checked');
   const selectedValues = Array.from(checkboxes).map(checkbox => checkbox.value);
   return selectedValues;
@@ -167,8 +166,6 @@ readConfig()
 
 ipcRenderer.on('setup-install-options', (event, data) => {
 
-    console.log(data)
-
     // populate ui
     populateOptions(qvpConfigData.QVP.install.tools)
 
@@ -186,7 +183,6 @@ ipcRenderer.on('setup-install-options', (event, data) => {
         percent: 0
       });
       const script = settings.get('downloadedfilePath')
-      console.log(script)
       ipcRenderer.send('execute-script', [script, ...selectedValues]);
     });
 
