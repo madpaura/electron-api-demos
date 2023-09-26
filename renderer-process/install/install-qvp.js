@@ -1,53 +1,59 @@
 const { BrowserWindow } = require('electron').remote
 const { ipcRenderer } = require('electron')
+const settings = require('electron-settings')
 
 const path = require('path')
 const http = require('http')
+const https = require('https');
 const fs = require('fs')
+const { event } = require('jquery')
 const app = require('electron').remote.app
 
 // Directory to save downloaded files
 const downloadDirectory = path.join(__dirname, 'downloads');
 var downloadSuccessful = false;
+var qvpConfigData = [];
 
 // Create the download directory if it doesn't exist
 if (!fs.existsSync(downloadDirectory)) {
   fs.mkdirSync(downloadDirectory);
 }
 
-// Function to download a file from a server
 function downloadFile(server) {
-  const url = new URL(server.link);
-  const filename = path.basename(url.pathname);
-  const outputFile = path.join(downloadDirectory, filename);
+  return new Promise((resolve, reject) => {
+    const protocol = server.link.startsWith('https') ? https : http;
 
-  const protocol = url.protocol === 'https:' ? https : http;
+    protocol.get(server.link, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to download from ${server.ip}. Status code: ${response.statusCode}`));
+        return;
+      }
 
-  const request = protocol.get(server.link, (response) => {
-    if (response.statusCode === 200) {
-      const fileStream = fs.createWriteStream(outputFile);
-      fs.chmod(outputFile, 0o755, (err) => {
-        if (err) {
-          console.error('Error setting execute permission:', err);
+      const filePath = app.getAppPath() + `/qvp-install-${server.ip}.sh`;
+      const writer = fs.createWriteStream(filePath, { flags: 'w' });
+      fs.chmodSync(filePath, 0o755);
+
+      response.pipe(writer);
+      console.log(response.headers)
+      writer.on('finish', () => {
+        writer.close();
+
+        settings.set('accessibleSever', server)
+        settings.set('downloadedfilePath', filePath)
+        resolve({ filePath, status: 'fulfilled' });
+        if (!downloadSuccessful) {
+          downloadSuccessful = true;
+          ipcRenderer.send('download-complete', filePath);
         }
       });
-      response.pipe(fileStream);
 
-      fileStream.on('finish', () => {
-        fileStream.close();
-        console.log(`Downloaded ${filename} from ${server.ip}`);
+      writer.on('error', (error) => {
+        reject(error);
       });
-    } else {
-      // console.error(`Failed to download ${filename} from ${server.ip}`);
-    }
+    }).on('error', (error) => {
+      reject(new Error(`Failed to download from ${server.ip}: ${error.message}`));
+    });
   });
-
-  request.on('error', (error) => {
-    // console.error(`Error downloading file from ${server.ip}: ${error.message}`);
-  });
-
-  request.end();
-  return outputFile
 }
 
 // Function to get selected checkbox values
@@ -60,7 +66,7 @@ function getSelectedValues() {
 function populateOptions(data) {
   const left = document.getElementById('install-items-left');
   const right = document.getElementById('install-items-right');
-  var cnt =  0
+  var cnt = 0
   data.forEach(tool => {
 
     const segment = document.createElement('div');
@@ -101,29 +107,66 @@ function populateOptions(data) {
 
     segment.appendChild(checkbox)
     segment.appendChild(desc)
-    
+
     // TODO this must be fixed
     cnt++
-    if ( cnt < 5 )
+    if (cnt < 5)
       left.append(segment)
     else
       right.append(segment)
   });
 }
 
-fetch(app.getAppPath() + '/qvp-config.json')
-  .then((response) => response.json())
-  .then((json) => {
+async function readConfig() {
+  const filePath = app.getAppPath() + '/qvp-config.json';
+  const data = fs.readFileSync(filePath, 'utf8');
 
-    // Iterate through the list of servers and download files
-    json.QVP.install.servers.forEach((server) => {
-      if (!downloadSuccessful) {
-        script = downloadFile(server);
-      }
-    });
+  try {
+    qvpConfigData = JSON.parse(data);
+    const servers = qvpConfigData.QVP.install.servers;
+
+    // console.log(settings.get('accessibleSever'), settings.get('downloadedfilePath'))
+
+    const downloadPromises = servers.map(downloadFile);
+    // Use Promise.all to wait for all download promises, regardless of fulfillment or rejection
+    Promise.all(downloadPromises.map(promise => promise.catch(error => ({ status: 'rejected', reason: error }))))
+      .then(results => {
+
+        const successfulDownloads = results
+          .filter(result => result.status === 'fulfilled')
+          .map(result => result.value);
+
+        const failedDownloads = results
+          .filter(result => result.status === 'rejected')
+          .map(result => result.reason.message);
+
+        if (successfulDownloads.length === 0) {
+          console.error('None of the servers were reachable.');
+          const error = document.getElementById('install-error-banner');
+          error.classList.remove('hidden')
+        }
+
+        if (failedDownloads.length > 0) {
+          const errorMsg = document.getElementById('install-error-msg');
+          failedDownloads.forEach(errorMessage => {
+            console.error(errorMessage);
+            errorMsg.innerText += "\n" + errorMessage
+          });
+        }
+      });
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+  }
+}
+
+readConfig()
+
+ipcRenderer.on('setup-install-options', (event, data) => {
+
+    console.log(data)
 
     // populate ui
-    populateOptions(json.QVP.install.tools)
+    populateOptions(qvpConfigData.QVP.install.tools)
 
     const installButton = document.getElementById('install');
 
@@ -138,11 +181,14 @@ fetch(app.getAppPath() + '/qvp-config.json')
       $('#install-progress').progress({
         percent: 0
       });
+      const script = settings.get('downloadedfilePath')
+      console.log(script)
       ipcRenderer.send('execute-script', [script, ...selectedValues]);
     });
-  })
 
-ipcRenderer.on('script-output', (event, data) => {
+});
+
+ipcRenderer.on('install-output', (event, data) => {
   const outputElement = document.getElementById('script-output-text');
   outputElement.innerHTML += `${data}`;
   outputElement.scrollTop = outputElement.scrollHeight;
@@ -153,7 +199,7 @@ ipcRenderer.on('script-output', (event, data) => {
 
 });
 
-ipcRenderer.on('script-exit', (event, data) => {
+ipcRenderer.on('install-complete', (event, data) => {
   document.getElementById('install').disabled = false;
   document.getElementById('install').classList.remove('disabled-button')
   document.getElementById('install').classList.remove('loading')

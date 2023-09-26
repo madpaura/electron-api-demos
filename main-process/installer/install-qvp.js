@@ -4,9 +4,9 @@ const { Script } = require('vm');
 
 let qvpInsallProcess;
 
-ipcMain.on('run-script', (event, arg) => {
-  console.log("executing script", arg)
-  event.sender.send('install-complete', 'success')
+ipcMain.on('download-complete', (event, data) => {
+  console.log("download compelte", data)
+  event.sender.send('setup-install-options', data)
 })
 
 ipcMain.on('execute-script', (event, arg) => {
@@ -18,14 +18,14 @@ ipcMain.on('execute-script', (event, arg) => {
 
   qvpInsallProcess = exec(arg.join(' '));
   qvpInsallProcess.stdout.on('data', (data) => {
-    event.sender.send('script-output', data);
+    event.sender.send('install-output', data);
   });
 
   qvpInsallProcess.stderr.on('data', (data) => {
-    event.sender.send('script-output', data);
+    event.sender.send('install-output', data);
   });
 
   qvpInsallProcess.on('close', (code) => {
-    event.sender.send('script-exit', code);
+    event.sender.send('install-complete', code);
   });
 });

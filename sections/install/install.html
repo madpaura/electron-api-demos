@@ -32,9 +32,7 @@
     <header class="section-header">
       <div class="section-wrapper">
         <h1>
-          <svg class="section-icon">
-            <use xlink:href="assets/img/icons.svg#icon-windows"></use>
-          </svg>
+          <i class="download icon"></i>
           QVP Install
           <button class="ui right floated primary button" id="install">Install</button>
         </h1>
@@ -49,8 +47,15 @@
       <div class="ui vertical basic segments" id="install-items-left"></div>
       <div class="ui vertical basic segments" id="install-items-right"></div>
     </div>
-    </div>
+
     <div class="output" id="script-output">
+      <div class="ui bottom hidden attached error message", id="install-error-banner">
+        <i class="close icon"></i>
+        <div class="header">
+          Failed downloading install artifacts
+        </div>
+        <p id="install-error-msg">Not able to reach qvp install repo servers, please check your <b>Connectivity/Firewall</b></p>
+      </div>
       <pre id="script-output-text"></pre>
     </div>
 
