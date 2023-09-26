@@ -58,9 +58,31 @@ function downloadFile(server) {
 
 // Function to get selected checkbox values
 function getSelectedValues() {
-  const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+  const installDiv = document.getElementById('install-list');
+  console.log(installDiv)
+  const checkboxes = installDiv.querySelectorAll('input[type="checkbox"]:checked');
   const selectedValues = Array.from(checkboxes).map(checkbox => checkbox.value);
   return selectedValues;
+}
+
+
+function createCheckbox(item) {
+  const checkbox = document.createElement('div');
+  checkbox.classList.add('ui', 'checkbox');
+
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.id = item.id;
+  input.value = item.value;
+
+  const label = document.createElement('label');
+  label.htmlFor = item.id;
+  label.textContent = item.name;
+
+  checkbox.appendChild(input);
+  checkbox.appendChild(label);
+
+  return checkbox;
 }
 
 function populateOptions(data) {
@@ -70,43 +92,25 @@ function populateOptions(data) {
   data.forEach(tool => {
 
     const segment = document.createElement('div');
-    segment.classList.add('ui', 'basic', 'segment');
-
-    const checkbox = document.createElement('div');
-    checkbox.classList.add('ui', 'checkbox');
-
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.id = tool.id;
-    input.value = tool.value;
-
-    const label = document.createElement('label');
-    label.htmlFor = tool.id;
-    label.textContent = tool.name;
+    segment.classList.add('ui', 'segment');
 
     const desc = document.createElement('p');
     desc.textContent = tool.des;
 
-    checkbox.appendChild(input);
-    checkbox.appendChild(label);
-
-    // If the tool has modules, create checkboxes for them
-    if (tool.modules) {
+    if ( tool.modules ) {
+      const span = document.createElement('span')
       tool.modules.forEach(module => {
-        const moduleCheckbox = document.createElement('input');
-        moduleCheckbox.type = 'checkbox';
-        moduleCheckbox.id = module.id;
-        moduleCheckbox.value = module.value;
-        const moduleLabel = document.createElement('label');
-        moduleLabel.htmlFor = module.id;
-        moduleLabel.textContent = module.name;
-        checkbox.appendChild(moduleCheckbox);
-        checkbox.appendChild(moduleLabel);
+        const checkbox = createCheckbox(module);
+        span.appendChild(checkbox)
       });
+      segment.appendChild(span)
+      segment.appendChild(desc)
     }
-
-    segment.appendChild(checkbox)
-    segment.appendChild(desc)
+    else {
+      const checkbox = createCheckbox(tool)
+      segment.appendChild(checkbox)
+      segment.appendChild(desc)
+    }
 
     // TODO this must be fixed
     cnt++
