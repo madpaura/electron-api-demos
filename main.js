@@ -26,7 +26,11 @@ function initialize () {
       minWidth: 680,
       height: 840,
       title: app.getName(),
-      nodeIntegration: true
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        allowRunningInsecureContent: true
+     }
     }
 
     if (process.platform === 'linux') {
