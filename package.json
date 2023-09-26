@@ -1,8 +1,8 @@
 {
-  "name": "electron-api-demos",
-  "productName": "Electron API Demos",
-  "version": "2.0.2",
-  "description": "Electron interactive API demos",
+  "name": "qvp-ui",
+  "productName": "QVP UI",
+  "version": "0.0.1",
+  "description": "QVP UI - Make life easiear",
   "main": "main.js",
   "bin": "cli.js",
   "scripts": {
@@ -22,13 +22,12 @@
     "prepack": "check-for-leaks",
     "prepush": "check-for-leaks"
   },
-  "repository": "https://github.com/electron/electron-api-demos",
+  "repository": "",
   "keywords": [
-    "Electron",
-    "API",
-    "demo"
+    "QVP",
+    "UI"
   ],
-  "author": "GitHub",
+  "author": "Samsung",
   "license": "MIT",
   "devDependencies": {
     "chai": "^3.4.1",

@@ -311,6 +311,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('save')
   });
 
+
   const configChange = document.querySelector('#change-config-path');
   configChange.addEventListener('click', function () {
     const input = document.createElement('input');
@@ -323,10 +324,17 @@ document.addEventListener("DOMContentLoaded", function () {
     // Listen for file selection and update the label
     input.addEventListener('change', () => {
       if (input.files.length > 0) {
-        configPath.innerHTML = input.files[0].path
+        configPath.textContent = input.files[0].path
         ipcRenderer.send('config-file-changed', input.files[0].path)
       }
     });    
+  });
+
+  const edit = document.querySelector('#open-editor');
+  edit.addEventListener('click', function () {
+    const filePath = document.querySelector('#config_file_path').textContent
+    console.log(filePath)
+    shell.openItem(filePath);    
   });
 
   ipcRenderer.send('config-file-changed', app.getAppPath() + '/qvp.conf')
