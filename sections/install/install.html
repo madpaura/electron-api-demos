@@ -1,21 +1,22 @@
 <template class="task-template">
   <style>
     #output {
-      margin-top: 10px;
+      margin-top: 0px;
       background-color: rgb(44, 43, 43);
       color: white;
       font-family: monospace;
-      padding: 10px;
+      padding: 0px;
       overflow-y: scroll;
       max-height: 40px;
-      /* Max height for the div */
     }
 
     #output pre {
       margin: 0;
       white-space: pre-wrap;
       line-height: 1.4;
-      /* Adjust line height for better readability */
+      border: 0px;
+      background-color: black;
+      font-family: monospace;
     }
 
     .disabled-button {
@@ -48,15 +49,17 @@
       <div class="ui vertical ten wide basic segments" id="install-items-right"></div>
     </div>
 
-    <div class="output" id="script-output">
-      <div class="ui bottom hidden attached error message", id="install-error-banner">
-        <i class="close icon"></i>
-        <div class="header">
-          Failed downloading install artifacts
-        </div>
-        <p id="install-error-msg">Not able to reach qvp install repo servers, please check your <b>Connectivity/Firewall</b></p>
+    <div class="ui black segment">
+      <pre class="output" id="script-output-text"></pre>
+    </div>
+    <div class="ui top attached hidden error message" , id="install-error-banner">
+      <i class="close icon"></i>
+      <div class="header">
+        Failed downloading install artifacts
       </div>
-      <pre id="script-output-text"></pre>
+      <p id="install-error-msg">Not able to reach qvp install repo servers, please check your
+        <b>Connectivity/Firewall</b>
+      </p>
     </div>
 
     <script>window.$ = window.jQuery = require('jquery');</script>

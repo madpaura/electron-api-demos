@@ -6,18 +6,28 @@
           <i class="large code icon"></i>
           Code Coverage
           <div class="ui icon right floated basic buttons">
-            <button class="ui button" id="start-cov-button", title="Start Coverage"><i class="large play icon"></i></button>
-            <button class="ui button" id="stop-cov-button", title="Stop Coverage"><i class="stop icon"></i></button>
-            <button class="ui button" id="view-cov-button", title="View Report"><i class="large chart pie icon"></i></button>
+            <button class="ui button" id="start-cov-button" , title="Start Coverage"><i
+                class="large play icon"></i></button>
+            <button class="ui button" id="stop-cov-button" , title="Stop Coverage"><i class="stop icon"></i></button>
+            <button class="ui button" id="view-cov-button" , title="View Report"><i
+                class="large chart pie icon"></i></button>
           </div>
       </div>
       </h1>
     </header>
 
-    <div class="container-fluid coverage"></div>
+    <div class="coverage ten ui top attached buttons" id="coverage-menu"> </div>
+
+    <div class="ui attached segment" id="coverage-result-view"></div>
+    <div class="ui top attached hidden error message" , id="coverage-error-banner">
+      <i class="close icon"></i>
+      <div class="header">Failed generating coverage reports</div>
+      <p id="coverage-error-msg"></p>
+    </div>
 
     <script type="text/javascript">
       require('./renderer-process/plugins/coverage')
     </script>
+
   </section>
 </template>

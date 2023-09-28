@@ -101,10 +101,10 @@
         },
         "plugin" : {
             "coverage" : {
-                "output": "/plugins/coverage",
-                "start" : "qvp.sh coverage start",
-                "stop" : "qvp.sh coverage stop",
-                "view" : "qvp.sh coverage view"
+                "output": "QVP/plugins/coverage/results",
+                "start_cmd" : "QVP/qvp.sh coverage start",
+                "stop_cmd" : "QVP/qvp.sh coverage stop",
+                "view_cmd" : "QVP/qvp.sh coverage view"
             }
         }
     }
