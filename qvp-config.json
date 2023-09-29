@@ -106,6 +106,24 @@
                 "stop_cmd" : "QVP/qvp.sh coverage stop",
                 "view_cmd" : "QVP/qvp.sh coverage view"
             }
+        },
+        "launch" : {
+            "run" : {
+                "path": "QVP",
+                "script": "qvp.sh",
+                "start_cmd" : "launch --silent",
+                "stop_cmd" : "launch --stop",
+                "logoutpath" : "QVP/launch/"
+            },
+            "ssh" : {
+                "port" : "20022",
+                "user" : "root",
+                "pass" : "root"
+            },
+            "debug" : {
+                "t32" : "t32",
+                "vscode" : ""
+            }
         }
     }
 }

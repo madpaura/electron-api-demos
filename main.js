@@ -9,7 +9,7 @@ const path = require('path')
 const glob = require('glob')
 const {app, BrowserWindow} = require('electron')
 
-const debug = /--debug/.test(process.argv[2])
+var debug = /--debug/.test(process.argv[2])
 
 if (process.mas) app.setName('QVP')
 
@@ -41,6 +41,7 @@ function initialize () {
     mainWindow.loadURL(path.join('file://', __dirname, '/index.html'))
 
     // Launch fullscreen with DevTools open, usage: npm run debug
+    debug = true;
     if (debug) {
       mainWindow.webContents.openDevTools()
       mainWindow.maximize()

@@ -1,0 +1,43 @@
+:root {
+  --main-view-height: 65%;
+  --console-window-height: 35%;
+}
+
+#main-view {
+  height: var(--main-view-height);
+  overflow: auto;
+}
+
+#console-window {
+  resize: vertical;
+  height: var(--console-window-height);
+  overflow: none;
+}
+
+#resizable-bar {
+  height: 3px;
+  background-color: #5fbed6;
+  cursor: ns-resize;
+  border: none;
+}
+
+#output {
+  overflow-y: scroll;
+}
+
+#log {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.2;
+  border: 3px;
+  background-color: black;
+  font-family: monospace, monospace;
+  font-size: 13px;
+  overflow-y: auto;
+}
+
+.output.ui.bottom.attached.basic.segment {
+  overflow-y: scroll;
+  /* You can also specify a maximum height if needed */
+  max-height: 360px; /* Adjust this value as desired */
+}

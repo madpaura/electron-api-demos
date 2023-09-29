@@ -5,10 +5,53 @@
         <h1>
           <i class="play icon"></i>
           Launch QVP
+          <div class="ui icon right floated basic buttons">
+            <button class="ui button" id="start-qvp-button" , title="Launch QVP"><i
+                class="large green play icon"></i></button>
+            <button class="ui button" id="stop-qvp-button" , title="Stop QVP"><i class="stop red icon"></i></button>
+            <button class="ui button" id="ssh-qvp-button" , title="Connect SSH to rootfs"><i
+                class="large blue terminal icon"></i></button>
+          </div>
         </h1>
       </div>
     </header>
 
+    <div id="main-view">
+      <pre id="launch-script-output">NO running QVP process, <i
+        class="large green play icon"></i> from above menu </pre>
+    </div>
+
+    <div id="resizable-bar"></div>
+    <div id="console-window">
+      <div class="ui top attached secondary pointing menu">
+        <a class="active item">
+          NVMe
+        </a>
+        <a class="item">
+          Core-0
+        </a>
+        <a class="item">
+          Core-1
+        </a>
+        <div class="right menu">
+          <div class="item">
+            <div class="ui transparent icon input">
+              <input type="text" placeholder="Search...">
+              <i class="search link icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="output ui bottom attached basic segment">
+        <pre> this is console window for logs <br> this is second line of text
+          <br> this is <br>this is <br>this is <br>this is <br>this is <br>this is <br>
+          this is <br>this is <br>this is <br>this is <br>this is <br>
+          this is <br>this is <br>this is <br>this is <br>this is <br>
+          this is <br>this is <br>this is <br>this is <br>this is <br>this is <br>
+          this is <br>this is <br>this is <br>this is <br>this is <br>          
+        </pre>
+      </div>
+    </div>
     <script type="text/javascript">
       require('./renderer-process/rundebug/launch')
     </script>
