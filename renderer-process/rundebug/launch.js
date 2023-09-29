@@ -5,7 +5,7 @@ const fs = require('fs')
 
 var qvpConfig = [];
 
-function GetCmdPath(launch) { 
+function GetCmdPath(launch) {
     return app.getAppPath() + "/" + launch.run.path + "/" + launch.run.script;
 }
 
@@ -78,6 +78,20 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("ssh connection");
         // ipcRenderer.send('ssh-qvp', [GetCmdPath(launch), launch.run.start_cmd])
     })
+
+    // Build log menu for all cores & nvme
+    const menu = document.getElementById('console-logs-menu');
+    menu.innerHTML = ''
+
+    menu.appendChild(AddMenuItem('NVMe', 'console-log-nvme'));
+    for (let i = 0; i < qvpConfig.QVP.launch.run.ncores; i++) {
+        menu.appendChild(AddMenuItem('Core-' + i, 'console-log-core-' + i));
+    }
+
+    menu.appendChild(AddSearchItem('console-log-search'));
+
+    const element = document.querySelector("#console-log-nvme");
+    element.click();
 });
 
 function EnableStart(state) {
@@ -116,16 +130,16 @@ ipcRenderer.on('qvp-start-error', (event, data) => {
 ipcRenderer.on('qvp-start-success', (event, data) => {
     EnableStart(true);
     EnableStop(true);
-    if ( data != 0 ){
-        ErrorMsg(`Script failed, status code : ${data}` )
+    if (data != 0) {
+        ErrorMsg(`Script failed, status code : ${data}`)
     }
 });
 
 ipcRenderer.on('qvp-stop-error', (event, data) => {
     EnableStop(true);
     EnableStart(true);
-    if ( data != 0 ){
-        ErrorMsg(`Script failed, status code : ${data}` )
+    if (data != 0) {
+        ErrorMsg(`Script failed, status code : ${data}`)
     }
 });
 
@@ -135,4 +149,42 @@ ipcRenderer.on('qvp-stop-success', (event, data) => {
     EnableStart(true)
 });
 
-  
+ipcRenderer.on('console-log-data', (event, id, data) => {
+    const out = document.getElementById('console-log-output-window');
+    data.forEach(line => {
+        console.log(line)
+        out.innerHTML += `${line}` + "\n";
+    })
+});
+
+function AddMenuItem(name, id) {
+    const item = document.createElement('a');
+    item.classList.add('launch', 'item')
+    item.textContent = name;
+    item.id = id
+
+    item.addEventListener('click', () => {
+        // Get all menu items
+        const menuItems = document.querySelectorAll(".launch.item");
+        menuItems.forEach((item) => {
+            item.classList.remove("active");
+            console.log(item.id)
+        });
+        item.classList.add("active")
+        ipcRenderer.send('console-log-navigate-tab', id);
+    });
+
+    return item;
+}
+
+function AddSearchItem(search_id) {
+    const search = document.createElement('div')
+    search.classList.add('right', 'menu')
+    search.innerHTML = `<div class="right menu"> \
+                          <div class="item"> \
+                          <div class="ui transparent icon input">\
+                          <input type="text" placeholder="Search..." id="${search_id}">\
+                          <i class="search link icon"></i>\
+                          </div></div></div>`
+    return search;
+}

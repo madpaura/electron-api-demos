@@ -22,36 +22,16 @@
     </div>
 
     <div id="resizable-bar"></div>
+
     <div id="console-window">
-      <div class="ui top attached secondary pointing menu">
-        <a class="active item">
-          NVMe
-        </a>
-        <a class="item">
-          Core-0
-        </a>
-        <a class="item">
-          Core-1
-        </a>
-        <div class="right menu">
-          <div class="item">
-            <div class="ui transparent icon input">
-              <input type="text" placeholder="Search...">
-              <i class="search link icon"></i>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- menu -->
+      <div class="launch ui top attached secondary pointing menu" id="console-logs-menu"></div>
+      <!-- log contents -->
       <div class="output ui bottom attached basic segment">
-        <pre> this is console window for logs <br> this is second line of text
-          <br> this is <br>this is <br>this is <br>this is <br>this is <br>this is <br>
-          this is <br>this is <br>this is <br>this is <br>this is <br>
-          this is <br>this is <br>this is <br>this is <br>this is <br>
-          this is <br>this is <br>this is <br>this is <br>this is <br>this is <br>
-          this is <br>this is <br>this is <br>this is <br>this is <br>          
-        </pre>
+        <pre id="console-log-output-window"> Console log...</pre>
       </div>
     </div>
+
     <script type="text/javascript">
       require('./renderer-process/rundebug/launch')
     </script>

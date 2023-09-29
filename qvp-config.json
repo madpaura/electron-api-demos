@@ -113,7 +113,8 @@
                 "script": "qvp.sh",
                 "start_cmd" : "launch --silent",
                 "stop_cmd" : "launch --stop",
-                "logoutpath" : "QVP/launch/"
+                "log_output_path" : "QVP/launch/",
+                "ncores" : "5"
             },
             "ssh" : {
                 "port" : "20022",

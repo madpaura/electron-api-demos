@@ -261,13 +261,13 @@ ipcRenderer.on('config-file-changed', (event, path) => {
     configData.forEach((groupObject) => {
       const key = Object.keys(groupObject)[0];
       const item = document.createElement('a');
-      item.classList.add('item')
+      item.classList.add('settings','item')
       item.textContent = key;
       item.id = key
   
       item.addEventListener('click', () => {
         // Get all menu items
-        const menuItems = document.querySelectorAll(".item");
+        const menuItems = document.querySelectorAll(".settings.item");
         menuItems.forEach((item) => {
           item.classList.remove("active");
         });
