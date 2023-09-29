@@ -6,24 +6,24 @@ const { event } = require('jquery');
 const app = require('electron').remote.app
 
 let qvpConfigData = [];
-let coreInfo = [];
+let coreData = [];
 
 function updateProgressBar(coreInfo) {
-    coreInfo.forEach(item => {
-        const lcid = item.name + "-lc-coverage-progress-bar";
-        const fcid = item.name + "-fc-coverage-progress-bar";
+    for (let index = 0; index < coreData.length; index++) {
+        const lcid = coreData[index].name + "-lc-coverage-progress-bar";
+        const fcid = coreData[index].name + "-fc-coverage-progress-bar";
 
-        $(`#${lcid}`).progress({ percent: 60 });
-        $(`#${fcid}`).progress({ percent: 100 });
-    });
+        $(`#${lcid}`).progress({ percent: coreData[index].line });
+        $(`#${fcid}`).progress({ percent: coreData[index].function });
+    }
 }
 
-function createProgressColumn(labelText, id, coveragePercent, success = false) {
+function createProgressColumn(labelText, id) {
     const column = document.createElement("div");
     column.className = "column";
 
     const progress = document.createElement("div");
-    progress.className = success ? "ui tiny indicating progress" : "ui tiny indicating progress";
+    progress.className = "ui tiny indicating progress";
     progress.id = id;
 
     const bar = document.createElement("div");
@@ -41,15 +41,15 @@ function createProgressColumn(labelText, id, coveragePercent, success = false) {
     return column;
 }
 
-function CreateProgress(data) {
+function CreateProgress(name) {
     const container = document.createElement("div");
     container.className = "ui grid";
 
     const row = document.createElement("div");
     row.className = "two column row";
 
-    const lc = createProgressColumn("LC", data.name + "-lc-coverage-progress-bar", 100);
-    const fc = createProgressColumn("FC", data.name + "-fc-coverage-progress-bar", 60, true);
+    const lc = createProgressColumn("LC", name + "-lc-coverage-progress-bar");
+    const fc = createProgressColumn("FC", name + "-fc-coverage-progress-bar");
 
     row.appendChild(lc);
     row.appendChild(fc);
@@ -58,14 +58,17 @@ function CreateProgress(data) {
     return container;
 }
 
-function DisplayCoreData(data) {
+function DisplayCoreData(coredata) {
+    const name = coredata.name;
+   
     const menu = document.getElementById('coverage-menu');
 
     const button = document.createElement('button');
-    button.className = "ui grey basic button active";
-    button.setAttribute("data-core", data.name);
+    button.className = "ui basic grey button active";
+    button.setAttribute("data-core", name);
     button.setAttribute("title", "Line & function coverage, click for detailed report");
-    button.textContent = data.name
+    button.textContent = name
+    button.id = name + "-button"
 
     button.addEventListener('click', () => {
         $(".coverage button").removeClass("active");
@@ -80,80 +83,63 @@ function DisplayCoreData(data) {
     });
 
     button.innerHTML += '<hr>'
-    button.appendChild(CreateProgress(data))
+    button.appendChild(CreateProgress(name))
 
     menu.appendChild(button);
 }
 
-function getcoveragepercentage(filepath) {
-    const rowData = {};
+function Getcoveragepercentage(coredata) {
 
-    fs.readFile(filepath, 'utf8', (err, htmlContent) => {
-        if (err) {
-            console.error('Error reading HTML file:', err);
-            return;
-        }
+    const name = coredata.name;
+    const filepath = coredata.filepath;
 
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlContent, 'text/html');
-        const matchingRows = Array.from(doc.querySelectorAll('tr')).filter(row => {
-            const headerItems = row.querySelectorAll('.headerItem');
-            for (const headerItem of headerItems) {
-                const text = headerItem.textContent.trim();
-                if (text === 'Lines:' || text === 'Functions:') {
-                    return true;
-                }
+    const htmlContent = fs.readFileSync(filepath, 'utf8');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    const matchingRows = Array.from(doc.querySelectorAll('tr')).filter(row => {
+        const headerItems = row.querySelectorAll('.headerItem');
+        for (const headerItem of headerItems) {
+            const text = headerItem.textContent.trim();
+            if (text === 'Lines:' || text === 'Functions:') {
+                return true;
             }
-            return false;
-        });
-
-        rowData['filepath'] = filepath;
-        for (let i = 1; i < matchingRows.length; i++) {
-            const row = matchingRows[i];
-            const headerItems = Array.from(row.querySelectorAll('.headerItem'));
-            const headerCovTableEntryLoItems = Array.from(row.querySelectorAll('.headerCovTableEntryLo'));
-
-            headerItems.forEach(item => {
-                const key = item.textContent.trim();
-                if (key && (key.endsWith('Lines:') || key.endsWith('Functions:'))) {
-                    rowData[key] = headerCovTableEntryLoItems.shift().textContent.trim();
-                }
-            });
         }
+        return false;
     });
 
-    return rowData;
+    for (let i = 1; i < matchingRows.length; i++) {
+        const row = matchingRows[i];
+        const headerItems = Array.from(row.querySelectorAll('.headerItem'));
+        const headerCovTableEntryLoItems = Array.from(row.querySelectorAll('.headerCovTableEntryLo'));
+
+        headerItems.forEach(item => {
+            const key = item.textContent.trim();
+            let cleanedKey = key.replace(/:/g, "");
+
+            if (key && (key.endsWith('Lines:'))) {
+                let value = headerCovTableEntryLoItems.shift().textContent.trim().replace(/%/g, "").trim();
+                coredata['line'] = value;
+            }
+            if (key && (key.endsWith('Functions:'))) {
+                let value = headerCovTableEntryLoItems.shift().textContent.trim().replace(/%/g, "").trim();
+                coredata['function'] = value;
+            }
+        });
+    }
 }
 
-
-function viewReportAll(items) {
-    coreInfo = [];
+function BuildCoresReportUI(items) {
     const coverage = qvpConfigData.QVP.plugin.coverage;
     const menu = document.getElementById('coverage-menu');
     menu.innerHTML = "";
 
-    const directoryPath = app.getAppPath() + "/" + coverage.output;
-    fs.readdir(directoryPath, { withFileTypes: true }, (err, entries) => {
-        if (err) {
-            console.error('Error reading directory:', err);
-            return;
-        }
-        const cores = entries.filter(entry => entry.isDirectory());
-        cores.forEach(core => {
-            const html = path.join(directoryPath, core.name) + "/index.html"
-            const data = getcoveragepercentage(html);
-            data['name'] = core.name;
-            DisplayCoreData(data);
-            coreInfo.push(data);
-        });
-    });
-
+    for (let index = 0; index < items.length; index++) {
+        Getcoveragepercentage(items[index]);
+        DisplayCoreData(items[index]);
+    }
+    coreData = items;
+    ipcRenderer.send('updated-cores-ui', items);
 }
-
-ipcRenderer.on('update-progress', (event, arg) => {
-    updateProgressBar(coreInfo);
-})
-
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -184,26 +170,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ipcRenderer.send('get-coverage-report', [app.getAppPath() + "/" + coverage.view_cmd, coverage.output])
     })
 
-    // Add click event handlers for the buttons
-    $(document).ready(function () {
-        // Handler for all buttons with the 'ui basic button' class
-        $(".coverage button").click(function () {
-            // Remove active class from all buttons
-            $(".coverage button").removeClass("active");
-            $(".coverage button").removeClass("blue");
-
-            // Make the clicked button active
-            $(this).addClass("active");
-            $(this).addClass("blue");
-
-            // Get the associated core data from the data attribute
-            const coreData = $(this).data("core");
-            // Write data to 'coverage-result-view'
-            // $("#coverage-result-view").text(`Core-${coreData} data goes here.`);
-            $("#coverage-result-view").load("/home/vishw/workspace/electron-api-demos/QVP/plugins/coverage/results/core0/cov.html");
-        });
-    });
-
 });
 
 function displayErrorMsg(data) {
@@ -230,17 +196,22 @@ ipcRenderer.on('coverage-stopped', (event, data) => {
     }
 })
 
-ipcRenderer.on('coverage-report', (event, data) => {
-    if (data != 0) {
+ipcRenderer.on('coverage-report', (event, status, data) => {
+    if (status != 0) {
         displayErrorMsg(data);
+        return;
     }
-    // view reports
-    viewReportAll(data);
-    ipcRenderer.send('updated-cores-ui')
+
+    BuildCoresReportUI(data);
 })
 
 ipcRenderer.on('update-progress-bar', (event) => {
-    updateProgressBar(coreInfo);
+
+    console.log("updating progress bar", coreData[0].name + "-button");
+    const button = document.getElementById(coreData[0].name + "-button");
+    button.click();
+
+    updateProgressBar();
 })
 
 ipcRenderer.on('coverage-script-output', (event, data) => {
