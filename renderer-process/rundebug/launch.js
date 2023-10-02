@@ -127,12 +127,18 @@ ipcRenderer.on('qvp-start-error', (event, data) => {
     ErrorMsg(data);
 });
 
-ipcRenderer.on('qvp-start-success', (event, data) => {
+let qvpcmds = ""
+
+ipcRenderer.on('qvp-start-process', (event, data, cmds) => {
     EnableStart(true);
     EnableStop(true);
+
     if (data != 0) {
         ErrorMsg(`Script failed, status code : ${data}`)
+        return
     }
+    qvpcmds = cmds;
+    console.log(cmds)
 });
 
 ipcRenderer.on('qvp-stop-error', (event, data) => {
@@ -154,6 +160,26 @@ ipcRenderer.on('console-log-data', (event, id, data) => {
     data.forEach(line => {
         console.log(line)
         out.innerHTML += `${line}` + "\n";
+    })
+});
+
+
+ipcRenderer.on('qvp-core-close', (event, id, code) => {
+    console.log('qvp-core-close', id, code);
+});
+
+
+ipcRenderer.on('qvp-core-error', (event, id, error) => {
+    console.log('qvp-core-error', id, error);
+});
+
+ipcRenderer.on('qvp-core-data', (event, id, data) => {
+    // console.log('qvp-core-data', id, data);
+    const out = document.getElementById('console-log-output-window');
+    out.innerHTML += '\n';
+    const lines = data.split('\n');
+    lines.forEach(line => {
+        out.innerHTML += `${line}`;
     })
 });
 
@@ -188,3 +214,8 @@ function AddSearchItem(search_id) {
                           </div></div></div>`
     return search;
 }
+
+
+ipcRenderer.on('clear-launch-window-event', (event, data) => {
+    document.getElementById('launch-script-output').innerText = ""
+});

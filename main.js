@@ -70,6 +70,10 @@ function initialize () {
   })
 }
 
+module.exports = {
+  mainWindow
+}
+
 // Make this app a single instance app.
 //
 // The main window will be restored and focused instead of a second window

@@ -2,8 +2,11 @@ const { ipcMain } = require('electron')
 const { exec } = require('child_process');
 const { Script } = require('vm');
 const fs = require('fs');
+const { spawn } = require('child_process');
 
 let proc;
+
+let bashScriptOutput = ""
 
 ipcMain.on('stop-qvp', (event, arg) => {
   console.log("stop-qvp-cmd", arg)
@@ -27,8 +30,10 @@ ipcMain.on('stop-qvp', (event, arg) => {
 
 })
 
+// script run, in UI mode we don;t actually execute the script, instead just evalaute commands
 ipcMain.on('run-qvp', (event, arg) => {
   console.log("run-qvp", arg)
+  bashScriptOutput = ""
 
   if (proc) {
     proc.kill('SIGTERM');
@@ -36,6 +41,7 @@ ipcMain.on('run-qvp', (event, arg) => {
 
   proc = exec(arg.join(' '));
   proc.stdout.on('data', (data) => {
+    bashScriptOutput += data;
     event.sender.send('qvp-launch-output', data);
   });
 
@@ -44,49 +50,77 @@ ipcMain.on('run-qvp', (event, arg) => {
   });
 
   proc.on('close', (code) => {
-    event.sender.send('qvp-start-success', code);
+    const lines = bashScriptOutput.split('\n');
+    const host = lines.filter((line) => line.includes('qemu-system-x86_64'));
+    const cores = lines.filter((line) => line.includes('qemu-system-aarch64'));
+    const nvme = lines.filter((line) => line.includes('nvme_controller'));
+
+    const cmds = {}
+    cmds['host'] = host
+    cmds['cores'] = cores
+    cmds['nvme'] = nvme
+
+    event.sender.send('qvp-start-process', code, cmds);
+
+    executeQVPCommand(event, 'nvme', nvme[0]);
+    // executeQVPCommand(event, 'host', host)
+    // cores.forEach((core, index) => {
+    //   executeQVPCommand(event, `core-${index}`, core)
+    // })
   });
 });
 
+let qemuProcesses = [];
 
-ipcMain.on('console-log-navigate-tab', (event, arg) => {
+function executeQVPCommand(event, id, cmd) {
+  console.log(`Executing QEMU command: ${cmd}`);
 
-  const filePath = '/home/vishw/workspace/electron-api-demos/QVP/launch/nvme.log';
+  // Split the full command into an array of executable and arguments
+  const commandParts = cmd.split(' ');
 
-  let filePosition = 0;
+  // Spawn a QEMU process
+  const qemuProcess = spawn(commandParts[0], commandParts.slice(1), { stdio: 'pipe' });
 
-  // Function to read and send only appended lines
-  function readAndSendAppendedLines(event, id) {
-    const fileStats = fs.statSync(filePath);
-    const fileSize = fileStats.size;
-
-    if (filePosition < fileSize) {
-      const readStream = fs.createReadStream(filePath, {
-        start: filePosition,
-        end: fileSize,
-        encoding: 'utf-8',
-      });
-
-      let appendedLines = '';
-
-      readStream.on('data', (chunk) => {
-        appendedLines += chunk;
-      });
-
-      readStream.on('end', () => {
-        const newLines = appendedLines.split('\n');
-        filePosition = fileSize;
-        event.sender.send('console-log-data', arg, newLines);
-      });
-    }
+  // Store information about the process
+  const processInfo = {
+    id,
+    cmd,
+    pid: qemuProcess.pid,
+    status: null,
+    process: qemuProcess,
   };
 
-  fs.watch(filePath, (eventType, filename) => {
-    if (eventType === 'change') {
-      readAndSendAppendedLines(event, arg);
-    }
+  console.log(`Executing QEMU command: ${qemuProcess.pid}`);
+
+  qemuProcesses.push(processInfo);
+
+  qemuProcess.on('close', (code) => {
+    processInfo.status = code;
+    console.log(`QEMU command '${cmd}' (PID ${qemuProcess.pid}) exited with code ${code}`);
+    event.sender.send('qvp-core-close', qemuProcess.pid, code );
   });
 
-  readAndSendAppendedLines(event, arg);
+  qemuProcess.on('error', (err) => {
+    console.error(`Error executing QEMU command: ${err.message}`);
+    event.sender.send('qvp-core-error', qemuProcess.pid, err.message);
+  });
+
+  qemuProcess.stdout.on('data', (data) => {
+    // console.log(`[PID ${qemuProcess.pid}] stdout: ${data.toString()}`);
+    event.sender.send('qvp-core-data', qemuProcess.pid, data.toString());
+  });
+
+}
+
+function killAllQVPProcesses() {
+  for (const processInfo of qemuProcesses) {
+    const { pid, process } = processInfo;
+    console.log(`Killing QEMU process (PID ${pid})`);
+    process.kill('SIGTERM');
+  }
+}
+
+ipcMain.on('console-log-navigate-tab', (event, arg) => {
+ 
 });
 
