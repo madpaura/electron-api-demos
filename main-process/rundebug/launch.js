@@ -11,6 +11,8 @@ let bashScriptOutput = ""
 ipcMain.on('stop-qvp', (event, arg) => {
   console.log("stop-qvp-cmd", arg)
 
+  killAllQVPProcesses();
+
   if (proc) {
     proc.kill('SIGTERM');
   }
@@ -63,10 +65,10 @@ ipcMain.on('run-qvp', (event, arg) => {
     event.sender.send('qvp-start-process', code, cmds);
 
     executeQVPCommand(event, 'nvme', nvme[0]);
-    // executeQVPCommand(event, 'host', host)
-    // cores.forEach((core, index) => {
-    //   executeQVPCommand(event, `core-${index}`, core)
-    // })
+    executeQVPCommand(event, 'host', host[0])
+    cores.forEach((core, index) => {
+      executeQVPCommand(event, `core-${index}`, core)
+    })
   });
 });
 
