@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron')
 const app = require('electron').remote.app
-const path = require('path')
+const { exec } = require('child_process');
 const fs = require('fs')
 
 var qvpConfig = [];
@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (newHeight >= minHeight && newHeight <= maxHeight) {
             mainView.style.height = newHeight + '%';
             consoleWindow.style.height = 100 - newHeight + '%';
-            console.log(newHeight + '%', 100 - newHeight + '%')
         }
 
         const outputSegment = document.querySelector('.output.ui.bottom.attached.basic.segment');
@@ -76,6 +75,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const ssh = document.getElementById('ssh-qvp-button');
     ssh.addEventListener('click', () => {
         console.log("ssh connection");
+
+        const ssh = qvpConfig.QVP.launch.ssh;
+        const cmd = `gnome-terminal -- bash -c 'ssh -p ${ssh.port} ${ssh.user}@${ssh.host};read'`;
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error executing SSH command: ${error.message}`);
+                return;
+            }
+            console.log(`STDOUT: ${stdout}`);
+            console.error(`STDERR: ${stderr}`);
+        });
+
         // ipcRenderer.send('ssh-qvp', [GetCmdPath(launch), launch.run.start_cmd])
     })
 
@@ -107,9 +118,7 @@ function EnableStop(state) {
 ipcRenderer.on('qvp-launch-output', (event, data) => {
     const outputElement = document.getElementById('launch-script-output');
     outputElement.innerHTML += `${data}`;
-    console.log(outputElement.scrollTop, outputElement.scrollHeight)
     outputElement.scrollTop = outputElement.scrollHeight;
-    console.log(outputElement.scrollTop, outputElement.scrollHeight)
 });
 
 function ErrorMsg(data) {
@@ -155,32 +164,55 @@ ipcRenderer.on('qvp-stop-success', (event, data) => {
     EnableStart(true)
 });
 
-ipcRenderer.on('console-log-data', (event, id, data) => {
-    const out = document.getElementById('console-log-output-window');
-    data.forEach(line => {
-        console.log(line)
-        out.innerHTML += `${line}` + "\n";
-    })
-});
+const maxLines = 2000;
+const coreLog = {}
+let activeLog = 'console-log-nvme';
 
-
-ipcRenderer.on('qvp-core-close', (event, id, code) => {
+ipcRenderer.on('qvp-core-close', (event, id, pid, code) => {
     console.log('qvp-core-close', id, code);
 });
 
 
-ipcRenderer.on('qvp-core-error', (event, id, error) => {
+ipcRenderer.on('qvp-core-error', (event, id, pid, error) => {
     console.log('qvp-core-error', id, error);
 });
 
-ipcRenderer.on('qvp-core-data', (event, id, data) => {
-    // console.log('qvp-core-data', id, data);
-    const out = document.getElementById('console-log-output-window');
-    out.innerHTML += '\n';
+ipcRenderer.on('qvp-core-data', (event, id, pid, data) => {
+
+    if (!coreLog[id]) {
+        coreLog[id] = [];
+    }
+
     const lines = data.split('\n');
     lines.forEach(line => {
-        out.innerHTML += `${line}`;
+        if (line.trim() !== '') {
+            coreLog[id].push(line);
+            if (coreLog[id].length > maxLines) {
+                coreLog[id].shift();
+            }
+        }
     })
+
+    if (id == 'console-log-host') {
+        const out = document.getElementById('launch-script-output');
+        out.innerHTML = coreLog[id].join('');
+        out.scrollTop = out.scrollHeight;
+        return;
+    }
+
+    if (activeLog == id) {
+        const out = document.getElementById('console-log-output-window');
+        out.innerHTML = coreLog[id].join('<br>');
+    }
+});
+
+ipcRenderer.on('console-log-navigate-tab-data', (event, id) => {
+    activeLog = id;
+    const out = document.getElementById('console-log-output-window');
+    out.innerHTML = '';
+    if (coreLog[id] && coreLog[id].length > 0) {
+        out.innerHTML = coreLog[id].join('<br>');
+    }
 });
 
 function AddMenuItem(name, id) {
@@ -194,9 +226,9 @@ function AddMenuItem(name, id) {
         const menuItems = document.querySelectorAll(".launch.item");
         menuItems.forEach((item) => {
             item.classList.remove("active");
-            console.log(item.id)
         });
         item.classList.add("active")
+        activeLog = item.id;
         ipcRenderer.send('console-log-navigate-tab', id);
     });
 

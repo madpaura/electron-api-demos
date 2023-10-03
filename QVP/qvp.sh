@@ -29,9 +29,9 @@ if [ $silent == true ]; then
   echo "qemu-system-x86_64 -nographic"
 
   # 
+  echo "qemu-system-aarch64 -nographic -machine virt --help"
   echo "qemu-system-aarch64 -nographic -machine virt"
-  echo "qemu-system-aarch64 -nographic -machine virt"
-  echo "qemu-system-aarch64 -nographic -machine virt"
+  echo "qemu-system-aarch64 -nographic -machine virt --help"
   echo "qemu-system-aarch64 -nographic -machine virt"
 
   #nvme

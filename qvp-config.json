@@ -117,6 +117,7 @@
                 "ncores" : "5"
             },
             "ssh" : {
+                "host" : "localhost",
                 "port" : "20022",
                 "user" : "root",
                 "pass" : "root"

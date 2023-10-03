@@ -8,6 +8,41 @@ let proc;
 
 let bashScriptOutput = ""
 
+class CircularBuffer {
+  constructor(size) {
+    this.size = size;
+    this.buffer = new Array(size);
+    this.head = 0; // Points to the most recent log entry
+    this.tail = -1; // Points to the oldest log entry (initialized as -1 for an empty buffer)
+    this.length = 0; // Current number of log entries in the buffer
+  }
+
+  // Add a new log entry to the circular buffer
+  push(entry) {
+    // Move the tail if the buffer is full
+    if (this.length === this.size) {
+      this.tail = (this.tail + 1) % this.size;
+    } else {
+      this.length++;
+    }
+
+    // Add the log entry to the head position
+    this.buffer[this.head] = entry;
+    this.head = (this.head + 1) % this.size;
+  }
+
+  // Get all log entries in the circular buffer
+  getAll() {
+    const logs = [];
+    let currentIndex = this.tail;
+    for (let i = 0; i < this.length; i++) {
+      logs.push(this.buffer[currentIndex]);
+      currentIndex = (currentIndex + 1) % this.size;
+    }
+    return logs;
+  }
+}
+
 ipcMain.on('stop-qvp', (event, arg) => {
   console.log("stop-qvp-cmd", arg)
 
@@ -64,10 +99,10 @@ ipcMain.on('run-qvp', (event, arg) => {
 
     event.sender.send('qvp-start-process', code, cmds);
 
-    executeQVPCommand(event, 'nvme', nvme[0]);
-    executeQVPCommand(event, 'host', host[0])
+    executeQVPCommand(event, 'console-log-nvme', nvme[0]);
+    executeQVPCommand(event, 'console-log-host', host[0])
     cores.forEach((core, index) => {
-      executeQVPCommand(event, `core-${index}`, core)
+      executeQVPCommand(event, `console-log-core-${index}`, core)
     })
   });
 });
@@ -75,13 +110,14 @@ ipcMain.on('run-qvp', (event, arg) => {
 let qemuProcesses = [];
 
 function executeQVPCommand(event, id, cmd) {
-  console.log(`Executing QEMU command: ${cmd}`);
+  console.log(`Executing QEMU command: ${cmd}, ${id}`);
 
   // Split the full command into an array of executable and arguments
   const commandParts = cmd.split(' ');
 
   // Spawn a QEMU process
   const qemuProcess = spawn(commandParts[0], commandParts.slice(1), { stdio: 'pipe' });
+  const logBuffer = new CircularBuffer(2000);
 
   // Store information about the process
   const processInfo = {
@@ -90,6 +126,7 @@ function executeQVPCommand(event, id, cmd) {
     pid: qemuProcess.pid,
     status: null,
     process: qemuProcess,
+    log: logBuffer
   };
 
   console.log(`Executing QEMU command: ${qemuProcess.pid}`);
@@ -99,17 +136,16 @@ function executeQVPCommand(event, id, cmd) {
   qemuProcess.on('close', (code) => {
     processInfo.status = code;
     console.log(`QEMU command '${cmd}' (PID ${qemuProcess.pid}) exited with code ${code}`);
-    event.sender.send('qvp-core-close', qemuProcess.pid, code );
+    event.sender.send('qvp-core-close', id, qemuProcess.pid, code );
   });
 
   qemuProcess.on('error', (err) => {
     console.error(`Error executing QEMU command: ${err.message}`);
-    event.sender.send('qvp-core-error', qemuProcess.pid, err.message);
+    event.sender.send('qvp-core-error', id, qemuProcess.pid, err.message);
   });
 
   qemuProcess.stdout.on('data', (data) => {
-    // console.log(`[PID ${qemuProcess.pid}] stdout: ${data.toString()}`);
-    event.sender.send('qvp-core-data', qemuProcess.pid, data.toString());
+    event.sender.send('qvp-core-data', id, qemuProcess.pid, data.toString());
   });
 
 }
@@ -123,6 +159,6 @@ function killAllQVPProcesses() {
 }
 
 ipcMain.on('console-log-navigate-tab', (event, arg) => {
- 
+  event.sender.send('console-log-navigate-tab-data', arg); 
 });
 
