@@ -70,10 +70,11 @@ function DisplayCoreData(coredata) {
     button.addEventListener('click', () => {
         $(".coverage button").removeClass("active");
         $(".coverage button").removeClass("blue");
+        $(".coverage button").addClass("basic");
 
         // Make the clicked button active
-        button.classList.add("active");
-        button.classList.add("blue");
+        button.classList.add("active", "blue");
+        button.classList.remove("basic");
 
         const coreData = button.getAttribute("data-core");
         $("#coverage-result-view").text(`Core-${coreData} data goes here.`);
