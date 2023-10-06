@@ -8,6 +8,7 @@ const path = require('path')
 const app = require('electron').remote.app
 
 let configData = [];
+let configFilePath = ""
 
 // Helper function to render the current settings tab
 function renderTab(tab) {
@@ -254,15 +255,16 @@ ipcRenderer.on('config-file-changed', (event, path) => {
     menu.innerHTML = ''
 
     configData = parseConfFile(data)
+    configFilePath = path;
     const firsttab = Object.keys(configData[0])[0];
-  
+
     configData.forEach((groupObject) => {
       const key = Object.keys(groupObject)[0];
       const item = document.createElement('a');
-      item.classList.add('settings','item')
+      item.classList.add('settings', 'item')
       item.textContent = key;
       item.id = key
-  
+
       item.addEventListener('click', () => {
         // Get all menu items
         const menuItems = document.querySelectorAll(".settings.item");
@@ -274,7 +276,7 @@ ipcRenderer.on('config-file-changed', (event, path) => {
       });
       menu.appendChild(item);
     });
-  
+
     const search = document.createElement('div')
     search.classList.add('right', 'menu')
     search.innerHTML = '<div class="right menu"> \
@@ -284,7 +286,7 @@ ipcRenderer.on('config-file-changed', (event, path) => {
                           <i class="search link icon"></i>\
                           </div></div></div>'
     menu.appendChild(search);
-  
+
     // // first tab visible
     const element = document.querySelector("#" + firsttab);
     element.click();
@@ -292,15 +294,50 @@ ipcRenderer.on('config-file-changed', (event, path) => {
 
 });
 
+
+function saveConfFile() {
+  const qvpConfPath = configFilePath;
+  var qvpConfData = fs.readFileSync(qvpConfPath, 'utf8');
+
+  configData.forEach((item) => {
+    const key = Object.keys(item)[0];
+    const groupArray = item[key];
+    groupArray.forEach((element) => {
+      const pattern = new RegExp(`^${element.id}=.*$`, 'm');
+      // qvpConfData = qvpConfData.replace(pattern, `${element.id}=${element.value}`);
+
+      qvpConfData = qvpConfData.replace(pattern, (match, oldValue) => {
+        if (element.value === 'true' || element.value === 'false' ||
+          element.value === 'on' || element.value === 'off' || !isNaN(element.value)) {
+          return `${element.id}=${element.value}`;
+        } else {
+          return `${element.id}="${element.value}"`;
+        }
+      });
+
+    });
+
+  });
+
+  fs.writeFileSync(qvpConfPath, qvpConfData, 'utf8');
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const configPath = document.querySelector('#config_file_path');
   configPath.textContent = app.getAppPath() + '/qvp.conf'
 
-  const save = document.querySelector('#save-workspace');
-  save.addEventListener('click', function () {
-    console.log('save')
+  // Add a keydown event listener to the document ( ctrl + s )
+  document.addEventListener("keydown", function (event) {
+    if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+      event.preventDefault();
+      document.getElementById("save-workspace").click();
+    }
   });
 
+  const save = document.querySelector('#save-workspace');
+  save.addEventListener('click', function () {
+    saveConfFile();
+  });
 
   const configChange = document.querySelector('#change-config-path');
   configChange.addEventListener('click', function () {
@@ -317,14 +354,14 @@ document.addEventListener("DOMContentLoaded", function () {
         configPath.textContent = input.files[0].path
         ipcRenderer.send('config-file-changed', input.files[0].path)
       }
-    });    
+    });
   });
 
   const edit = document.querySelector('#open-editor');
   edit.addEventListener('click', function () {
     const filePath = document.querySelector('#config_file_path').textContent
     console.log(filePath)
-    shell.openItem(filePath);    
+    shell.openItem(filePath);
   });
 
   ipcRenderer.send('config-file-changed', app.getAppPath() + '/qvp.conf')
