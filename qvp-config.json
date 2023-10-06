@@ -3,6 +3,9 @@
         "common": {
             "wiki": "http://globalwiki.itplatform.sec.samsung.net:8099/x/4wtS"
         },
+        "system" : {
+            "ospath" : "/opt/os/"
+        },
         "install": {
             "servers": [
                 {

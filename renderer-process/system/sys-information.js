@@ -3,9 +3,8 @@ const fs = require('fs');
 const prompt = require('electron-prompt');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-
-// Example usage
-const directoryPath = '/opt/os';
+const settings = require('electron-settings')
+const app = require('electron').remote.app
 
 function createTableSpace(height) {
     const spaceDiv = document.createElement('div');
@@ -102,8 +101,16 @@ function dockerInfo() {
         images: [],
     };
 
-    // Execute Docker images command
-    exec('sudo docker images --format "{{.Repository}}:{{.Tag}}"', (error, stdout, stderr) => {
+    let passwd = settings.get('passwd');
+    if (!passwd) {
+        passwd = 'test'
+        settings.set('passwd', passwd)
+    }
+
+    const cmd = `echo ${passwd} | sudo -S docker images --format "{{.Repository}}:{{.Tag}}"`
+    console.log(cmd)
+
+    exec(cmd, (error, stdout, stderr) => {
         if (!error) {
             const imagesData = stdout.trim().split('\n').map(image => image.split(':'));
 
@@ -113,6 +120,10 @@ function dockerInfo() {
             };
             createTableWithHeader(tableContainer, tableData);
         } else {
+            if (stderr.includes("incorrect password attempt")) {
+                console.log("passwd mismatch, open passwd dialog");
+                // TODO
+            }
             console.error('Error getting Docker images:', error);
         }
     });
@@ -149,12 +160,25 @@ async function osInfo(directoryPath) {
 
 
 function loadInfo() {
-    systemInfo()
-    dockerInfo()
-    osInfo(directoryPath);
+
+    const filePath = app.getAppPath() + '/qvp-config.json';
+    const data = fs.readFileSync(filePath, 'utf8');
+
+    try {
+        qvpConfigData = JSON.parse(data);
+        const system = qvpConfigData.QVP.system;
+
+        systemInfo()
+        dockerInfo()
+        osInfo(system.ospath);
+    } catch {
+        console.error("Failed parsing qvp config file");
+    }
 }
 
-loadInfo()
+document.addEventListener("DOMContentLoaded", function () {
+    loadInfo();
+});
 
 // const sys_export_btn = document.getElementById('sys_export');
 // sys_export_btn.addEventListener("click", () => {

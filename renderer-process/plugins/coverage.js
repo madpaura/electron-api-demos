@@ -1,8 +1,5 @@
 const { ipcRenderer } = require('electron')
-const { chart } = require('chartjs')
 const fs = require('fs');
-const path = require('path');
-const { event } = require('jquery');
 const app = require('electron').remote.app
 
 let qvpConfigData = [];

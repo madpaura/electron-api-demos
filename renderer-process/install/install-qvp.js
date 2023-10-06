@@ -162,7 +162,9 @@ async function readConfig() {
   }
 }
 
-readConfig()
+document.addEventListener("DOMContentLoaded", function () {
+  readConfig();
+});
 
 ipcRenderer.on('setup-install-options', (event, data) => {
 

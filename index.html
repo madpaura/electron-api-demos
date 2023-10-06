@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="assets/css/github.css">
   <link rel="stylesheet" href="assets/semantic.min.css">
   <link rel="stylesheet" href="assets/icon.min.css">
-  
+
   <link rel="import" href="sections/about.html">
   <link rel="import" href="sections/install/install.html">
   <link rel="import" href="sections/rundebug/debugfw.html">
@@ -89,13 +89,16 @@
       <button type="button" id="button-windows" data-section="windows" class="nav-button">Install <em>QVP</em></button>
     </div>
 
+    <footer class="nav-footer" title="Set QVP Working directory" id="set-working-dir">
+      <h3 ><a class="nav-footer-logo" aria-label="Homepage"><i class="folder icon"></i></a>
+        Working Dirctory </h3>
+    </footer>
+
     <footer class="nav-footer">
       <button type="button" id="button-about" data-modal="about" class="nav-footer-button">About QVP</button>
-      <a class="nav-footer-logo" href="https://samsung.com" aria-label="Homepage">
-        <i class="large at icon"></i>
-      </a>
-      <a class="nav-footer-logo" href="https://samsung.com" aria-label="Homepage"><i class="large envelope icon"></i> </a>
-      <a class="nav-footer-logo" href="https://samsung.com" aria-label="Homepage"><i class="large comments icon"></i></a>
+      <a class="nav-footer-logo" href="https://samsung.com" aria-label="Homepage"><i class="large info icon"></i> </a>
+      <a class="nav-footer-logo" aria-label="Homepage"><i class="large envelope icon" id="openEmail"
+          title="Write us"></i></a>
     </footer>
   </nav>
 
@@ -111,6 +114,35 @@
     require('./assets/demo-btns')
     require('./assets/code-blocks')
     require('./assets/normalize-shortcuts')
+  </script>
+
+  <script>
+    const { app, BrowserWindow, shell } = require('electron');
+    document.addEventListener("DOMContentLoaded", function () {
+
+      document.getElementById('openEmail').addEventListener('click', () => {
+        // Define your email subject and body
+        const emailSubject = 'Subject';
+        const emailBody = 'Body text here';
+
+        // Define the recipient email address
+        const recipientEmail = 'recipient@example.com';
+
+        // Construct the mailto URL
+        const mailtoUrl = 'mailto:' + recipientEmail +
+          '?subject=' + encodeURIComponent(emailSubject) +
+          '&body=' + encodeURIComponent(emailBody);
+
+        // Open the default email client
+        shell.openItem(mailtoUrl);
+
+      });
+
+      document.getElementById('set-working-dir').addEventListener('click', () => {
+        console.log("working dir");
+      });
+
+    })
   </script>
 </body>
 

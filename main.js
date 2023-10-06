@@ -7,7 +7,8 @@ if (require.main !== module) {
 
 const path = require('path')
 const glob = require('glob')
-const {app, BrowserWindow} = require('electron')
+const { app, BrowserWindow } = require('electron')
+const sudo = require('sudo-prompt');
 
 var debug = /--debug/.test(process.argv[2])
 
@@ -15,12 +16,12 @@ if (process.mas) app.setName('QVP')
 
 let mainWindow = null
 
-function initialize () {
+function initialize() {
   makeSingleInstance()
 
   loadDemos()
 
-  function createWindow () {
+  function createWindow() {
     const windowOptions = {
       width: 1080,
       minWidth: 680,
@@ -30,7 +31,7 @@ function initialize () {
         nodeIntegration: true,
         contextIsolation: false,
         allowRunningInsecureContent: true
-     }
+      }
     }
 
     if (process.platform === 'linux') {
@@ -54,7 +55,7 @@ function initialize () {
   }
 
   app.on('ready', () => {
-    createWindow()
+    createWindow();
   })
 
   app.on('window-all-closed', () => {
@@ -81,7 +82,7 @@ module.exports = {
 //
 // Returns true if the current version of the app should quit instead of
 // launching.
-function makeSingleInstance () {
+function makeSingleInstance() {
   if (process.mas) return
 
   app.requestSingleInstanceLock()
@@ -95,9 +96,9 @@ function makeSingleInstance () {
 }
 
 // Require each JS file in the main-process dir
-function loadDemos () {
+function loadDemos() {
   const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'))
   files.forEach((file) => { require(file) })
 }
 
-initialize()
+initialize()  

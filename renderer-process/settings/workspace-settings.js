@@ -3,8 +3,6 @@ const { desktopCapturer, screen, shell } = require('electron')
 const { ipcRenderer } = require('electron')
 
 const fs = require('fs')
-const cos = require('highlight.js/lib/languages/cos')
-const json = require('highlight.js/lib/languages/json')
 const os = require('os')
 const path = require('path')
 const app = require('electron').remote.app
