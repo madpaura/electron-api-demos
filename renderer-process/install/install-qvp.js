@@ -128,8 +128,6 @@ async function readConfig() {
     qvpConfigData = JSON.parse(data);
     const servers = qvpConfigData.QVP.install.servers;
 
-    // console.log(settings.get('accessibleSever'), settings.get('downloadedfilePath'))
-
     const downloadPromises = servers.map(downloadFile);
     // Use Promise.all to wait for all download promises, regardless of fulfillment or rejection
     Promise.all(downloadPromises.map(promise => promise.catch(error => ({ status: 'rejected', reason: error }))))

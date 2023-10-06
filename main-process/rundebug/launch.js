@@ -156,6 +156,7 @@ function killAllQVPProcesses() {
     console.log(`Killing QEMU process (PID ${pid})`);
     process.kill('SIGTERM');
   }
+  qemuProcesses = [];
 }
 
 ipcMain.on('console-log-navigate-tab', (event, arg) => {
