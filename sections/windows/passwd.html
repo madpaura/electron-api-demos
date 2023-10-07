@@ -1,0 +1,36 @@
+<style>
+    body {
+        padding: 10px;
+        font-family: system, -apple-system, '.SFNSText-Regular', 'SF UI Text', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif;
+        color: #fff;
+        background-color: #3f3d3d;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    #close {
+        color: white;
+        opacity: 0.7;
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        text-decoration: none;
+    }
+</style>
+<h1>Enter Your Sudo Password</h1>
+<form>
+    <label for="password">Password:</label>
+    <input type="password" id="passwd-text" name="password">
+    <button type="button" id="passwd-submit">Submit</button>
+</form>
+
+<script>
+    const { ipcRenderer } = require('electron');
+
+    document.getElementById('passwd-submit').addEventListener('click', () => {
+        const password = document.getElementById('passwd-text').value;
+        ipcRenderer.send('password-submitted', password);
+    });
+</script>

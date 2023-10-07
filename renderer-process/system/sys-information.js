@@ -5,6 +5,7 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const settings = require('electron-settings')
 const app = require('electron').remote.app
+const passmgr = require('../../renderer-process/system/passwd.js')
 
 function createTableSpace(height) {
     const spaceDiv = document.createElement('div');
@@ -101,15 +102,9 @@ function dockerInfo() {
         images: [],
     };
 
-    let passwd = settings.get('passwd');
-    if (!passwd) {
-        passwd = 'test'
-        settings.set('passwd', passwd)
-    }
+    const passwd = passmgr.getPasswd();
 
     const cmd = `echo ${passwd} | sudo -S docker images --format "{{.Repository}}:{{.Tag}}"`
-    console.log(cmd)
-
     exec(cmd, (error, stdout, stderr) => {
         if (!error) {
             const imagesData = stdout.trim().split('\n').map(image => image.split(':'));
@@ -122,7 +117,7 @@ function dockerInfo() {
         } else {
             if (stderr.includes("incorrect password attempt")) {
                 console.log("passwd mismatch, open passwd dialog");
-                // TODO
+                passmgr.getPasswd();
             }
             console.error('Error getting Docker images:', error);
         }

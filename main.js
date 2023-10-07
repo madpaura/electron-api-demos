@@ -7,8 +7,7 @@ if (require.main !== module) {
 
 const path = require('path')
 const glob = require('glob')
-const { app, BrowserWindow } = require('electron')
-const sudo = require('sudo-prompt');
+const { app, BrowserWindow, ipcMain } = require('electron')
 
 var debug = /--debug/.test(process.argv[2])
 
@@ -100,5 +99,34 @@ function loadDemos() {
   const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'))
   files.forEach((file) => { require(file) })
 }
+
+let mainWinEvent;
+
+ipcMain.on('sudo-passwd-update', (event) => {
+  mainWinEvent = event;
+  const modalPath = path.join(__dirname, '/sections/windows/passwd.html')
+  passwordDialog = new BrowserWindow({
+    frame: false,
+    width: 400,
+    height: 140,
+    modal: true,
+    parent: mainWindow,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      allowRunningInsecureContent: true
+    }
+  })
+
+  passwordDialog.on('close', () => { win = null })
+  passwordDialog.loadFile(modalPath)
+  passwordDialog.show()
+
+});
+
+ipcMain.on('password-submitted', (event, password) => {
+  mainWinEvent.sender.send('password-updated', password)
+  passwordDialog.close();
+});
 
 initialize()  
